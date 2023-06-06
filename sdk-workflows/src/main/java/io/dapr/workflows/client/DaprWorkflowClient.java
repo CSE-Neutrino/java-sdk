@@ -15,6 +15,7 @@ package io.dapr.workflows.client;
 
 import com.microsoft.durabletask.DurableTaskClient;
 import com.microsoft.durabletask.DurableTaskGrpcClientBuilder;
+import com.microsoft.durabletask.OrchestrationMetadata;
 import io.dapr.config.Properties;
 import io.dapr.utils.Version;
 import io.dapr.workflows.runtime.Workflow;
@@ -131,6 +132,24 @@ public class DaprWorkflowClient implements AutoCloseable {
    */
   public void terminateWorkflow(String workflowInstanceId, @Nullable Object output) {
     this.innerClient.terminate(workflowInstanceId, output);
+  }
+
+  /**
+   * Fetches workflow instance metadata from the configured durable store.
+   *
+   * @param instanceId the unique ID of the workflow instance to fetch
+   * @param getInputsAndOutputs <code>true</code> to fetch the workflow instance's
+   * inputs, outputs, and custom status, or <code>false</code> to omit them
+   * @return a metadata record that describes the workflow instance and its
+   * execution status, or a default instance if no such instance is found. 
+   */
+  @Nullable
+  public WorkflowMetadata getInstanceMetadata(String instanceId, boolean getInputsAndOutputs) {
+    OrchestrationMetadata metadata = this.innerClient.getInstanceMetadata(instanceId, getInputsAndOutputs);
+    if (metadata == null) {
+      return null;
+    }
+    return new WorkflowMetadata(metadata);
   }
 
   /**
