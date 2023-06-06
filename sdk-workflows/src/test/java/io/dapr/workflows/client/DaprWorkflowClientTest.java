@@ -14,6 +14,9 @@ limitations under the License.
 package io.dapr.workflows.client;
 
 import com.microsoft.durabletask.DurableTaskClient;
+import com.microsoft.durabletask.OrchestrationMetadata;
+import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+
 import io.dapr.workflows.runtime.Workflow;
 import io.dapr.workflows.runtime.WorkflowContext;
 import io.grpc.ManagedChannel;
@@ -24,6 +27,8 @@ import org.junit.Test;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
@@ -101,6 +106,30 @@ public class DaprWorkflowClientTest {
 
     client.terminateWorkflow(expectedArgument, null);
     verify(mockInnerClient, times(1)).terminate(expectedArgument, null);
+  }
+
+  @Test
+  public void getInstanceMetadata() {
+
+    // Arrange
+    String instanceId = "TestWorkflowInstanceId";
+
+    OrchestrationMetadata expectedMetadata = mock(OrchestrationMetadata.class);
+    when(expectedMetadata.getInstanceId()).thenReturn(instanceId);
+    when(expectedMetadata.getName()).thenReturn("WorkflowName");
+    when(expectedMetadata.getRuntimeStatus()).thenReturn(OrchestrationRuntimeStatus.RUNNING);
+    when(mockInnerClient.getInstanceMetadata(instanceId, true)).thenReturn(expectedMetadata);
+
+    // Act
+    WorkflowMetadata metadata = client.getInstanceMetadata(instanceId, true);
+
+    // Assert
+    verify(mockInnerClient, times(1)).getInstanceMetadata(instanceId, true);
+    assertNotEquals(metadata, null);
+    assertEquals(metadata.getInstanceId(), expectedMetadata.getInstanceId());
+    assertEquals(metadata.getName(), expectedMetadata.getName());
+    assertEquals(metadata.isRunning(), expectedMetadata.isRunning());
+    assertEquals(metadata.isCompleted(), expectedMetadata.isCompleted());
   }
 
   @Test
