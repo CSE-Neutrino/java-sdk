@@ -13,249 +13,246 @@ limitations under the License.
 
 package io.dapr.workflows.client;
 
-import java.time.Instant;
-
 import com.microsoft.durabletask.OrchestrationMetadata;
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+import java.time.Instant;
 
 /**
  * Represents a snapshot of an workflow instance's current state, including
  * metadata.
  */
-
 public class WorkflowMetadata {
 
-    OrchestrationMetadata workflowMetadata;
-    WorkflowFailureDetails failureDetails;
+  OrchestrationMetadata workflowMetadata;
+  WorkflowFailureDetails failureDetails;
 
-    public WorkflowMetadata(OrchestrationMetadata orchestrationMetadata) {
-        // This value will be null if the workflow doesn't exist.
-        this.workflowMetadata = orchestrationMetadata;
+  /**
+   * Class constructor.
+   *
+   * @param orchestrationMetadata Durable task orchestration metadata
+   */
+  public WorkflowMetadata(OrchestrationMetadata orchestrationMetadata) {
+    // This value will be null if the workflow doesn't exist.
+    this.workflowMetadata = orchestrationMetadata;
 
-        if (orchestrationMetadata.getFailureDetails() != null) {
-            this.failureDetails = new WorkflowFailureDetails(orchestrationMetadata.getFailureDetails());
-        }
+    if (orchestrationMetadata.getFailureDetails() != null) {
+      this.failureDetails = new WorkflowFailureDetails(orchestrationMetadata.getFailureDetails());
+    }
+  }
+
+  /**
+   * Gets the name of the workflow.
+   *
+   * @return the name of the workflow
+   */
+  public String getName() {
+    return workflowMetadata.getName();
+  }
+
+  /**
+   * Gets the unique ID of the workflow instance.
+   *
+   * @return the unique ID of the workflow instance
+   */
+  public String getInstanceId() {
+    return workflowMetadata.getInstanceId();
+  }
+
+  /**
+   * Gets the current runtime status of the workflow instance at the time this object was fetched.
+   *
+   * @return the current runtime status of the workflow instance at the time this object was fetched
+   */
+  public WorkflowRuntimeStatus getRuntimeStatus() {
+    if (this.workflowMetadata == null) {
+      return WorkflowRuntimeStatus.Unknown;
     }
 
-    /**
-     * Gets the name of the workflow.
-     * 
-     * @return the name of the workflow
-     */
-    public String getName() {
-        return workflowMetadata.getName();
+    OrchestrationRuntimeStatus status = this.workflowMetadata.getRuntimeStatus();
+    switch (status) {
+      case RUNNING:
+        return WorkflowRuntimeStatus.RUNNING;
+      case COMPLETED:
+        return WorkflowRuntimeStatus.COMPLETED;
+      case CONTINUED_AS_NEW:
+        return WorkflowRuntimeStatus.CONTINUED_AS_NEW;
+      case FAILED:
+        return WorkflowRuntimeStatus.FAILED;
+      case CANCELED:
+        return WorkflowRuntimeStatus.CANCELED;
+      case TERMINATED:
+        return WorkflowRuntimeStatus.TERMINATED;
+      case PENDING:
+        return WorkflowRuntimeStatus.PENDING;
+      case SUSPENDED:
+        return WorkflowRuntimeStatus.SUSPENDED;
+      default:
+        return WorkflowRuntimeStatus.Unknown;
     }
+  }
 
-    /**
-     * Gets the unique ID of the workflow instance.
-     * 
-     * @return the unique ID of the workflow instance
-     */
-    public String getInstanceId() {
-        return workflowMetadata.getInstanceId();
-    }
+  /**
+   * Gets the workflow instance's creation time in UTC.
+   *
+   * @return the workflow instance's creation time in UTC
+   */
+  public Instant getCreatedAt() {
+    return workflowMetadata.getCreatedAt();
+  }
 
-    /**
-     * Gets the current runtime status of the workflow instance at the time this
-     * object was fetched.
-     * 
-     * @return the current runtime status of the workflow instance at the time this
-     *         object was fetched
-     */
-    public WorkflowRuntimeStatus getRuntimeStatus() {
-        if (this.workflowMetadata == null) {
-            return WorkflowRuntimeStatus.Unknown;
-        }
+  /**
+   * Gets the workflow instance's last updated time in UTC.
+   *
+   * @return the workflow instance's last updated time in UTC
+   */
+  public Instant getLastUpdatedAt() {
+    return workflowMetadata.getLastUpdatedAt();
+  }
 
-        OrchestrationRuntimeStatus status = this.workflowMetadata.getRuntimeStatus();
-        switch (status) {
-            case RUNNING:
-                return WorkflowRuntimeStatus.RUNNING;
-            case COMPLETED:
-                return WorkflowRuntimeStatus.COMPLETED;
-            case CONTINUED_AS_NEW:
-                return WorkflowRuntimeStatus.CONTINUED_AS_NEW;
-            case FAILED:
-                return WorkflowRuntimeStatus.FAILED;
-            case CANCELED:
-                return WorkflowRuntimeStatus.CANCELED;
-            case TERMINATED:
-                return WorkflowRuntimeStatus.TERMINATED;
-            case PENDING:
-                return WorkflowRuntimeStatus.PENDING;
-            case SUSPENDED:
-                return WorkflowRuntimeStatus.SUSPENDED;
-            default:
-                return WorkflowRuntimeStatus.Unknown;
-        }
-    }
+  /**
+   * Gets the workflow instance's serialized input, if any, as a string value.
+   *
+   * @return the workflow instance's serialized input or {@code null}
+   */
+  public String getSerializedInput() {
+    return workflowMetadata.getSerializedInput();
+  }
 
-    /**
-     * Gets the workflow instance's creation time in UTC.
-     * 
-     * @return the workflow instance's creation time in UTC
-     */
-    public Instant getCreatedAt() {
-        return workflowMetadata.getCreatedAt();
-    }
+  /**
+   * Gets the workflow instance's serialized output, if any, as a string value.
+   *
+   * @return the workflow instance's serialized output or {@code null}
+   */
+  public String getSerializedOutput() {
+    return workflowMetadata.getSerializedOutput();
+  }
 
-    /**
-     * Gets the workflow instance's last updated time in UTC.
-     * 
-     * @return the workflow instance's last updated time in UTC
-     */
-    public Instant getLastUpdatedAt() {
-        return workflowMetadata.getLastUpdatedAt();
-    }
+  /**
+   * Gets the failure details, if any, for the failed workflow instance.
+   *
+   * <p>This method returns data only if the workflow is in the
+   * {@link OrchestrationRuntimeStatus#FAILED} state,
+   * and only if this instance metadata was fetched with the option to include
+   * output data.
+   *
+   * @return the failure details of the failed workflow instance or {@code null}
+   */
+  public WorkflowFailureDetails getFailureDetails() {
+    return this.failureDetails;
+  }
 
-    /**
-     * Gets the workflow instance's serialized input, if any, as a string value.
-     * 
-     * @return the workflow instance's serialized input or {@code null}
-     */
-    public String getSerializedInput() {
-        return workflowMetadata.getSerializedInput();
-    }
+  /**
+   * Gets a value indicating whether the workflow instance was running at the time
+   * this object was fetched.
+   *
+   * @return {@code true} if the workflow existed and was in a running state;
+    otherwise {@code false}
+   */
+  public boolean isRunning() {
+    return workflowMetadata.isRunning();
+  }
 
-    /**
-     * Gets the workflow instance's serialized output, if any, as a string value.
-     * 
-     * @return the workflow instance's serialized output or {@code null}
-     */
-    public String getSerializedOutput() {
-        return workflowMetadata.getSerializedOutput();
-    }
+  /**
+   * Gets a value indicating whether the workflow instance was completed at the
+   * time this object was fetched.
+   *
+   * <p>A workflow instance is considered completed when its runtime status value is
+   * {@link WorkflowRuntimeStatus#COMPLETED},
+   * {@link WorkflowRuntimeStatus#FAILED}, or
+   * {@link WorkflowRuntimeStatus#TERMINATED}.
+   *
+   * @return {@code true} if the workflow was in a terminal state; otherwise {@code false}
+   */
+  public boolean isCompleted() {
+    return workflowMetadata.isCompleted();
+  }
 
-    /**
-     * Gets the failure details, if any, for the failed workflow instance.
-     * <p>
-     * This method returns data only if the workflow is in the
-     * {@link OrchestrationRuntimeStatus#FAILED} state,
-     * and only if this instance metadata was fetched with the option to include
-     * output data.
-     *
-     * @return the failure details of the failed workflow instance or {@code null}
-     */
-    public WorkflowFailureDetails getFailureDetails() {
-        return this.failureDetails;
-    }
+  /**
+   * Deserializes the workflow's input into an object of the specified type.
+   *
+   * <p>Deserialization is performed using the DataConverter that was
+   * configured on the DurableTaskClient object that created this workflow metadata object.
+   *
+   * @param type the class associated with the type to deserialize the input data
+   *             into
+   * @param <T>  the type to deserialize the input data into
+   * @return the deserialized input value
+   * @throws IllegalStateException if the metadata was fetched without the option
+   *                               to read inputs and outputs
+   */
+  public <T> T readInputAs(Class<T> type) {
+    return workflowMetadata.readInputAs(type);
+  }
 
-    /**
-     * Gets a value indicating whether the workflow instance was running at the time
-     * this object was fetched.
-     *
-     * @return {@code true} if the workflow existed and was in a running state;
-     *         otherwise {@code false}
-     */
-    public boolean isRunning() {
-        return workflowMetadata.isRunning();
-    }
+  /**
+   * Deserializes the workflow's output into an object of the specified type.
+   *
+   * <p>Deserialization is performed using the DataConverter that was
+   * configured on the DurableTaskClient
+   * object that created this workflow metadata object.
+   *
+   * @param type the class associated with the type to deserialize the output data
+   *             into
+   * @param <T>  the type to deserialize the output data into
+   * @return the deserialized input value
+   * @throws IllegalStateException if the metadata was fetched without the option
+   *                               to read inputs and outputs
+   */
+  public <T> T readOutputAs(Class<T> type) {
+    return workflowMetadata.readOutputAs(type);
+  }
 
-    /**
-     * Gets a value indicating whether the workflow instance was completed at the
-     * time this object was fetched.
-     * <p>
-     * An workflow instance is considered completed when its runtime status value is
-     * {@link WorkflowRuntimeStatus#COMPLETED},
-     * {@link WorkflowRuntimeStatus#FAILED}, or
-     * {@link WorkflowRuntimeStatus#TERMINATED}.
-     *
-     * @return {@code true} if the workflow was in a terminal state; otherwise
-     *         {@code false}
-     */
-    public boolean isCompleted() {
-        return workflowMetadata.isCompleted();
-    }
+  /**
+   * Deserializes the workflow's custom status into an object of the specified type.
+   *
+   * <p>Deserialization is performed using the DataConverter that was
+   * configured on the DurableTaskClient
+   * object that created this workflow metadata object.
+   *
+   * @param type the class associated with the type to deserialize the custom
+   *             status data into
+   * @param <T>  the type to deserialize the custom status data into
+   * @return the deserialized input value
+   * @throws IllegalStateException if the metadata was fetched without the option
+   *                               to read inputs and outputs
+   */
+  public <T> T readCustomStatusAs(Class<T> type) {
+    return workflowMetadata.readCustomStatusAs(type);
+  }
 
-    /**
-     * Deserializes the workflow's input into an object of the specified type.
-     * <p>
-     * Deserialization is performed using the {@link DataConverter} that was
-     * configured on the {@link DurableTaskClient}
-     * object that created this workflow metadata object.
-     *
-     * @param type the class associated with the type to deserialize the input data
-     *             into
-     * @param <T>  the type to deserialize the input data into
-     * @throws IllegalStateException if the metadata was fetched without the option
-     *                               to read inputs and outputs
-     * @return the deserialized input value
-     */
-    public <T> T readInputAs(Class<T> type) {
-        return workflowMetadata.readInputAs(type);
-    }
+  /**
+   * Returns {@code true} if the workflow has a non-empty custom status value;
+   * otherwise {@code false}.
+   *
+   * <p>This method will always return {@code false} if the metadata was fetched
+   * without the option to read inputs and
+   * outputs
+   *
+   * @return {@code true} if the workflow has a non-empty custom status value;
+    otherwise {@code false}
+   */
+  public boolean isCustomStatusFetched() {
+    return workflowMetadata.isCustomStatusFetched();
+  }
 
-    /**
-     * Deserializes the workflow's output into an object of the specified type.
-     * <p>
-     * Deserialization is performed using the {@link DataConverter} that was
-     * configured on the {@link DurableTaskClient}
-     * object that created this workflow metadata object.
-     *
-     * @param type the class associated with the type to deserialize the output data
-     *             into
-     * @param <T>  the type to deserialize the output data into
-     * @throws IllegalStateException if the metadata was fetched without the option
-     *                               to read inputs and outputs
-     * @return the deserialized input value
-     */
-    public <T> T readOutputAs(Class<T> type) {
-        return workflowMetadata.readOutputAs(type);
-    }
+  /**
+   * Generates a user-friendly string representation of the current metadata
+   * object.
+   *
+   * @return a user-friendly string representation of the current metadata object
+   */
+  public String toString() {
+    return workflowMetadata.toString();
+  }
 
-    /**
-     * Deserializes the workflow's custom status into an object of the specified
-     * type.
-     * <p>
-     * Deserialization is performed using the {@link DataConverter} that was
-     * configured on the {@link DurableTaskClient}
-     * object that created this workflow metadata object.
-     *
-     * @param type the class associated with the type to deserialize the custom
-     *             status data into
-     * @param <T>  the type to deserialize the custom status data into
-     * @throws IllegalStateException if the metadata was fetched without the option
-     *                               to read inputs and outputs
-     * @return the deserialized input value
-     */
-    public <T> T readCustomStatusAs(Class<T> type) {
-        return workflowMetadata.readCustomStatusAs(type);
-    }
-
-    /**
-     * Returns {@code true} if the workflow has a non-empty custom status value;
-     * otherwise {@code false}.
-     * <p>
-     * This method will always return {@code false} if the metadata was fetched
-     * without the option to read inputs and
-     * outputs
-     *
-     * @return {@code true} if the workflow has a non-empty custom status value;
-     *         otherwise {@code false}
-     */
-    public boolean isCustomStatusFetched() {
-        return workflowMetadata.isCustomStatusFetched();
-    }
-
-    /**
-     * Generates a user-friendly string representation of the current metadata
-     * object.
-     * 
-     * @return a user-friendly string representation of the current metadata object
-     */
-    public String toString() {
-        return workflowMetadata.toString();
-    }
-
-    /**
-     * Returns {@code true} if an workflow instance with this ID was found;
-     * otherwise {@code false}.
-     *
-     * @return {@code true} if an workflow instance with this ID was found;
-     *         otherwise {@code false}
-     */
-    public boolean isInstanceFound() {
-        return workflowMetadata.isInstanceFound();
-    }
+  /**
+   * Returns {@code true} if an workflow instance with this ID was found;
+   * otherwise {@code false}.
+   *
+   * @return {@code true} if an workflow instance with this ID was found; otherwise {@code false}
+   */
+  public boolean isInstanceFound() {
+    return workflowMetadata.isInstanceFound();
+  }
 
 }

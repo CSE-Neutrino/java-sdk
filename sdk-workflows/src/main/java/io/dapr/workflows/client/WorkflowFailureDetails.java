@@ -20,62 +20,60 @@ import com.microsoft.durabletask.FailureDetails;
  */
 public class WorkflowFailureDetails {
 
-    FailureDetails workflowFailureDetails;
+  FailureDetails workflowFailureDetails;
 
-    public WorkflowFailureDetails(FailureDetails failureDetails) {
-        this.workflowFailureDetails = failureDetails;
-    }
+  /**
+   * Class constructor.
+   * @param failureDetails failure Details
+   */
+  public WorkflowFailureDetails(FailureDetails failureDetails) {
+    this.workflowFailureDetails = failureDetails;
+  }
 
-    /**
-     * Gets the error type, which is the namespace-qualified exception type name.
-     * 
-     * @return the error type, which is the namespace-qualified exception type name
-     */
-    public String getErrorType() {
-        return workflowFailureDetails.getErrorType();
-    }
+  /**
+   * Gets the error type, which is the namespace-qualified exception type name.
+   *
+   * @return the error type, which is the namespace-qualified exception type name
+   */
+  public String getErrorType() {
+    return workflowFailureDetails.getErrorType();
+  }
 
-    /**
-     * Gets the error message.
-     * 
-     * @return the error message
-     */
-    public String getErrorMessage() {
-        return workflowFailureDetails.getErrorMessage();
-    }
+  /**
+   * Gets the error message.
+   *
+   * @return the error message
+   */
+  public String getErrorMessage() {
+    return workflowFailureDetails.getErrorMessage();
+  }
 
-    /**
-     * Gets the stack trace.
-     * 
-     * @return the stack trace
-     */
-    public String getStackTrace() {
-        return workflowFailureDetails.getStackTrace();
-    }
+  /**
+   * Gets the stack trace.
+   *
+   * @return the stack trace
+   */
+  public String getStackTrace() {
+    return workflowFailureDetails.getStackTrace();
+  }
 
-    public boolean isNonRetriable() {
-        return workflowFailureDetails.isNonRetriable();
-    }
+  /**
+   * Returns true if the failure was caused by the specified exception type.
+   *
+   * <p>This method allows checking if a workflow task failed due to an exception to
+   * a specific type by attempting to load the type specified in
+   * ErrorType. If the exception type cannot be loaded for any
+   * reason, this method will return false. Base types are supported.
+   *
+   * @param exceptionClass The type of exception to test against
+   * @return the inner exception details
+   */
+  public boolean isCausedBy(Class<? extends Exception> exceptionClass) {
+    return workflowFailureDetails.isCausedBy(exceptionClass);
+  }
 
-    /**
-     * Returns <c>true</c> if the failure was caused by the specified exception
-     * type.
-     * 
-     * This method allows checking if a workflow task failed due to an exception of
-     * a specific type by attempting to load the type specified in
-     * <see cref="ErrorType"/>. If the exception type cannot be loaded for any
-     * reason, this method will return <c>false</c>. Base types are supported.
-     * 
-     * @param exceptionClass The type of exception to test against
-     * 
-     * @return the inner exception details
-     */
-    public boolean isCausedBy(Class<? extends Exception> exceptionClass) {
-        return workflowFailureDetails.isCausedBy(exceptionClass);
-    }
-
-    @Override
-    public String toString() {
-        return workflowFailureDetails.toString();
-    }
+  @Override
+  public String toString() {
+    return workflowFailureDetails.toString();
+  }
 }

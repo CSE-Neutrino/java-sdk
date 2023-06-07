@@ -25,6 +25,9 @@ import io.grpc.ManagedChannelBuilder;
 import javax.annotation.Nullable;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Defines client operations for managing Dapr Workflow instances.
+ */
 public class DaprWorkflowClient implements AutoCloseable {
 
   private final DurableTaskClient innerClient;
@@ -51,7 +54,6 @@ public class DaprWorkflowClient implements AutoCloseable {
    *
    * @param innerClient DurableTaskGrpcClient with GRPC Channel set up.
    * @param grpcChannel ManagedChannel for instance variable setting.
-   *
    */
   private DaprWorkflowClient(DurableTaskClient innerClient, ManagedChannel grpcChannel) {
     this.innerClient = innerClient;
@@ -139,9 +141,9 @@ public class DaprWorkflowClient implements AutoCloseable {
    *
    * @param instanceId the unique ID of the workflow instance to fetch
    * @param getInputsAndOutputs <code>true</code> to fetch the workflow instance's
-   * inputs, outputs, and custom status, or <code>false</code> to omit them
+     inputs, outputs, and custom status, or <code>false</code> to omit them
    * @return a metadata record that describes the workflow instance and its
-   * execution status, or a default instance if no such instance is found. 
+     execution status, or a default instance if no such instance is found.
    */
   @Nullable
   public WorkflowMetadata getInstanceMetadata(String instanceId, boolean getInputsAndOutputs) {
@@ -154,7 +156,6 @@ public class DaprWorkflowClient implements AutoCloseable {
 
   /**
    * Closes the inner DurableTask client and shutdown the GRPC channel.
-   *
    */
   public void close() throws InterruptedException {
     if (this.innerClient != null) {

@@ -18,48 +18,48 @@ package io.dapr.workflows.client;
  */
 public enum WorkflowRuntimeStatus {
 
-    /**
-     * The workflow started running
-     */
-    RUNNING,
+  /**
+   * The workflow started running.
+   */
+  RUNNING,
 
-    /*
-     * The workflow completed normally
-     */
-    COMPLETED,
+  /**
+   * The workflow completed normally.
+   */
+  COMPLETED,
 
-    /*
-     * The workflow is continued as new
-     */
-    CONTINUED_AS_NEW,
+  /**
+   * The workflow is continued as new.
+   */
+  CONTINUED_AS_NEW,
 
-    /*
-     * The workflow completed with an unhandled exception
-     */
-    FAILED,
+  /**
+   * The workflow completed with an unhandled exception.
+   */
+  FAILED,
 
-    /*
-     * The workflow was abruptly cancelled via a management API call
-     */
-    CANCELED,
+  /**
+   * The workflow was abruptly cancelled via a management API call.
+   */
+  CANCELED,
 
-    /*
-     * The workflow was abruptly terminated via a management API call
-     */
-    TERMINATED,
+  /**
+   * The workflow was abruptly terminated via a management API call.
+   */
+  TERMINATED,
 
-    /*
-     * The workflow was scheduled but hasn't started running
-     */
-    PENDING,
+  /**
+   * The workflow was scheduled but hasn't started running.
+   */
+  PENDING,
 
-    /*
-     * The workflow was suspended
-     */
-    SUSPENDED,
+  /**
+   * The workflow was suspended.
+   */
+  SUSPENDED,
 
-    /*
-     * The status of the workflow is unknown
-     */
-    Unknown
+  /**
+   * The status of the workflow is unknown.
+   */
+  Unknown
 }
