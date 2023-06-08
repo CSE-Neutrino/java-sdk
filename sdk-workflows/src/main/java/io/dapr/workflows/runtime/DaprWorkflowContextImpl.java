@@ -44,7 +44,7 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
    * Constructor for DaprWorkflowContextImpl.
    *
    * @param context TaskOrchestrationContext
-   * @param logger Logger
+   * @param logger  Logger
    * @throws IllegalArgumentException if context or logger is null
    */
   public DaprWorkflowContextImpl(TaskOrchestrationContext context, Logger logger) throws IllegalArgumentException {
@@ -117,5 +117,4 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
   public <V> Task<V> callActivity(String name, Object input, TaskOptions options, Class<V> returnType) {
     return this.innerContext.callActivity(name, input, options, returnType);
   }
-
 }

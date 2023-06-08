@@ -23,7 +23,6 @@ import java.time.Duration;
  * Implementation of the DemoWorkflow for the server side.
  */
 public class DemoWorkflow extends Workflow {
-
   @Override
   public void run(WorkflowContext ctx) {
     ctx.getLogger().info("Starting Workflow: " + ctx.getName());

@@ -14,8 +14,12 @@ limitations under the License.
 package io.dapr.examples.workflows;
 
 public class DemoActivityOutput {
+
   private String originalMessage;
   private String newMessage;
+
+  public DemoActivityOutput() {
+  }
 
   public DemoActivityOutput(String originalMessage, String newMessage) {
     this.originalMessage = originalMessage;

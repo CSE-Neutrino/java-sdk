@@ -14,6 +14,7 @@ limitations under the License.
 package io.dapr.examples.workflows;
 
 public class DemoActivityInput {
+
   private String message;
 
   public DemoActivityInput() {
@@ -25,5 +26,9 @@ public class DemoActivityInput {
 
   public String getMessage() {
     return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 }
