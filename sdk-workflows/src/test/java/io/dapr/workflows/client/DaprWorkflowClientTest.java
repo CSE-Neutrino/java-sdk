@@ -16,16 +16,16 @@ package io.dapr.workflows.client;
 import com.microsoft.durabletask.DurableTaskClient;
 import com.microsoft.durabletask.OrchestrationMetadata;
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
-
 import io.dapr.workflows.runtime.Workflow;
 import io.dapr.workflows.runtime.WorkflowContext;
 import io.grpc.ManagedChannel;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.lang.reflect.Constructor;
+import java.time.Duration;
 import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -130,6 +130,26 @@ public class DaprWorkflowClientTest {
     assertEquals(metadata.getName(), expectedMetadata.getName());
     assertEquals(metadata.isRunning(), expectedMetadata.isRunning());
     assertEquals(metadata.isCompleted(), expectedMetadata.isCompleted());
+  }
+
+  @Test
+  public void waitForInstanceStart() throws TimeoutException {
+
+    // Arrange
+    String instanceId = "TestWorkflowInstanceId";
+    Duration timeout = Duration.ofSeconds(10);
+
+    OrchestrationMetadata expectedMetadata = mock(OrchestrationMetadata.class);
+    when(expectedMetadata.getInstanceId()).thenReturn(instanceId);
+    when(mockInnerClient.waitForInstanceStart(instanceId, timeout, true)).thenReturn(expectedMetadata);
+
+    // Act
+    WorkflowMetadata result = client.waitForInstanceStart(instanceId, timeout, true);
+
+    // Assert
+    verify(mockInnerClient, times(1)).waitForInstanceStart(instanceId, timeout, true);
+    assertNotEquals(result, null);
+    assertEquals(result.getInstanceId(), expectedMetadata.getInstanceId());
   }
 
   @Test

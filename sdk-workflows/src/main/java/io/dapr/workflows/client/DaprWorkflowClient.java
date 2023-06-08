@@ -23,7 +23,9 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 
 import javax.annotation.Nullable;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Defines client operations for managing Dapr Workflow instances.
@@ -148,6 +150,35 @@ public class DaprWorkflowClient implements AutoCloseable {
   @Nullable
   public WorkflowMetadata getInstanceMetadata(String instanceId, boolean getInputsAndOutputs) {
     OrchestrationMetadata metadata = this.innerClient.getInstanceMetadata(instanceId, getInputsAndOutputs);
+    if (metadata == null) {
+      return null;
+    }
+    return new WorkflowMetadata(metadata);
+  }
+
+  /**
+   * Waits for an orchestration to start running and returns an
+   * {@link WorkflowMetadata} object that contains metadata about the started 
+   * instance and optionally its input, output, and custom status payloads.
+   * 
+   * <p>A "started" orchestration instance is any instance not in the
+   * <code>Pending</code> state.
+   * 
+   * <p>If an orchestration instance is already running when this method is called,
+   * the method will return immediately.
+   *
+   * @param instanceId the unique ID of the orchestration instance to wait for
+   * @param timeout the amount of time to wait for the orchestration instance to start
+   * @param getInputsAndOutputs <code>true</code> to fetch the orchestration instance's 
+   *                            inputs, outputs, and custom status, or <code>false</code> to omit them
+   * @throws TimeoutException when the orchestration instance is not started within the specified amount of time
+   * @return the orchestration instance metadata or <code>null</code> if no such instance is found
+   */
+  @Nullable
+  public WorkflowMetadata waitForInstanceStart(String instanceId, Duration timeout, boolean getInputsAndOutputs)
+      throws TimeoutException {
+
+    OrchestrationMetadata metadata = this.innerClient.waitForInstanceStart(instanceId, timeout, getInputsAndOutputs);
     if (metadata == null) {
       return null;
     }

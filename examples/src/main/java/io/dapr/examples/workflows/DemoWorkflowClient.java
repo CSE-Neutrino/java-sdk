@@ -16,7 +16,9 @@ package io.dapr.examples.workflows;
 import io.dapr.workflows.client.DaprWorkflowClient;
 import io.dapr.workflows.client.WorkflowMetadata;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * For setup instructions, see the README.
@@ -25,6 +27,7 @@ public class DemoWorkflowClient {
 
   /**
    * The main method.
+   * 
    * @param args Input arguments (unused).
    * @throws InterruptedException If program has been interrupted.
    */
@@ -47,6 +50,15 @@ public class DemoWorkflowClient {
       System.out.println("**getInstanceMetadata:Completed**");
       workflowMetadata = client.getInstanceMetadata(instanceId, true);
       System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
+
+      System.out.println("*****");
+      System.out.println("**waitForInstanceStart**");
+      try {
+        workflowMetadata = client.waitForInstanceStart(instanceId, Duration.ofSeconds(60), true);
+        System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
+      } catch (TimeoutException ex) {
+        System.out.printf("waitForInstanceStart has an exception:%s%n", ex);
+      }
 
       System.out.println("*****");
       String instanceToTerminateId = "terminateMe";
