@@ -13,13 +13,11 @@ limitations under the License.
 
 package io.dapr.workflows.runtime;
 
-import io.dapr.workflows.runtime.WorkflowContext;
-
 /**
  * Common interface for workflow implementations.
  */
 public abstract class Workflow {
-  public Workflow(){
+  public Workflow() {
   }
 
   /**

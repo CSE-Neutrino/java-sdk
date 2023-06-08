@@ -13,22 +13,22 @@ limitations under the License.
 
 package io.dapr.workflows.runtime;
 
-import com.microsoft.durabletask.TaskOrchestrationContext;
+import com.microsoft.durabletask.TaskActivityContext;
 
 /**
  * Interface that provides {@link WorkflowActivity} implementations with activity context,
  * such as an activity's name and its input.
  */
-public class WorkflowActivityContext {
-  private final TaskOrchestrationContext innerContext;
+public class WorkflowActivityContext implements TaskActivityContext {
+  private final TaskActivityContext innerContext;
 
   /**
    * Constructor for WorkflowActivityContext.
    *
-   * @param context TaskOrchestrationContext
+   * @param context TaskActivityContext
    * @throws IllegalArgumentException if context is null
    */
-  public WorkflowActivityContext(TaskOrchestrationContext context) throws IllegalArgumentException {
+  public WorkflowActivityContext(TaskActivityContext context) throws IllegalArgumentException {
     if (context == null) {
       throw new IllegalArgumentException("Context cannot be null");
     } else {

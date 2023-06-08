@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
-public class DemoWorkflowActivity implements WorkflowActivity {
+public class DemoWorkflowActivity extends WorkflowActivity {
 
   Logger logger = LoggerFactory.getLogger(DemoWorkflowActivity.class);
 
