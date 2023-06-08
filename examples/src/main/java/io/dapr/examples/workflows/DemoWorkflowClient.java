@@ -14,6 +14,7 @@ limitations under the License.
 package io.dapr.examples.workflows;
 
 import io.dapr.workflows.client.DaprWorkflowClient;
+import io.dapr.workflows.client.WorkflowMetadata;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,11 +33,20 @@ public class DemoWorkflowClient {
 
     try (client) {
       System.out.println("*****");
-      String instanceId = client.scheduleNewWorkflow(DemoWorkflow.class);
+      String instanceId = client.scheduleNewWorkflow(DemoWorkflow.class, "input data");
       System.out.printf("Started new workflow instance with random ID: %s%n", instanceId);
+
+      System.out.println("*****");
+      System.out.println("**getInstanceMetadata:Running**");
+      WorkflowMetadata workflowMetadata = client.getInstanceMetadata(instanceId, true);
+      System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
 
       System.out.println("Sleep and allow this workflow instance to timeout...");
       TimeUnit.SECONDS.sleep(10);
+
+      System.out.println("**getInstanceMetadata:Completed**");
+      workflowMetadata = client.getInstanceMetadata(instanceId, true);
+      System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
 
       System.out.println("*****");
       String instanceToTerminateId = "terminateMe";

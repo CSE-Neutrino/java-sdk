@@ -57,21 +57,6 @@ public class WorkflowFailureDetails {
     return workflowFailureDetails.getStackTrace();
   }
 
-  /**
-   * Returns true if the failure was caused by the specified exception type.
-   *
-   * <p>This method allows checking if a workflow task failed due to an exception to
-   * a specific type by attempting to load the type specified in
-   * ErrorType. If the exception type cannot be loaded for any
-   * reason, this method will return false. Base types are supported.
-   *
-   * @param exceptionClass The type of exception to test against
-   * @return the inner exception details
-   */
-  public boolean isCausedBy(Class<? extends Exception> exceptionClass) {
-    return workflowFailureDetails.isCausedBy(exceptionClass);
-  }
-
   @Override
   public String toString() {
     return workflowFailureDetails.toString();
