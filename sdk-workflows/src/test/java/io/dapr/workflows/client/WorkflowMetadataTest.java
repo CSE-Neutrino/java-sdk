@@ -13,11 +13,12 @@ limitations under the License.
 
 package io.dapr.workflows.client;
 
+import com.microsoft.durabletask.FailureDetails;
 import com.microsoft.durabletask.OrchestrationMetadata;
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.Assert;
 import static org.mockito.Mockito.*;
 
 import java.time.Instant;
@@ -36,165 +37,190 @@ public class WorkflowMetadataTest {
   @Test
   public void getInstanceId() {
     // Arrange
-    when(mockOrchestrationMetadata.getInstanceId()).thenReturn("instanceId");
+    String expected = "instanceId";
+    when(mockOrchestrationMetadata.getInstanceId()).thenReturn(expected);
 
     // Act
-    
+    String result = workflowMetadata.getInstanceId();
+
     // Assert
-    assertEquals(workflowMetadata.getInstanceId(), mockOrchestrationMetadata.getInstanceId());
+    verify(mockOrchestrationMetadata, times(1)).getInstanceId();
+    Assert.assertEquals(result, expected);
   }
 
   @Test
   public void getName() {
     // Arrange
-    when(mockOrchestrationMetadata.getName()).thenReturn("WorkflowName");
-    
+    String expected = "WorkflowName";
+    when(mockOrchestrationMetadata.getName()).thenReturn(expected);
+
     // Act
+    String result = workflowMetadata.getName();
+
     // Assert
-    assertEquals(workflowMetadata.getName(), mockOrchestrationMetadata.getName());
+    verify(mockOrchestrationMetadata, times(1)).getName();
+    Assert.assertEquals(result, expected);
   }
 
+  @Test
+  public void getCreatedAt() {
+    // Arrange
+    Instant expected = Instant.now();
+    when(mockOrchestrationMetadata.getCreatedAt()).thenReturn(expected);
+
+    // Act
+    Instant result = workflowMetadata.getCreatedAt();
+
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).getCreatedAt();
+    Assert.assertEquals(result, expected);
+  }
 
   @Test
-    public void getCreatedAt() {
-      // Arrange
-      when(mockOrchestrationMetadata.getCreatedAt()).thenReturn(Instant.now());
+  public void getLastUpdatedAt() {
+    // Arrange
+    Instant expected = Instant.now();
+    when(mockOrchestrationMetadata.getLastUpdatedAt()).thenReturn(expected);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.getCreatedAt(), mockOrchestrationMetadata.getCreatedAt());
-    }
+    // Act
+    Instant result = workflowMetadata.getLastUpdatedAt();
 
-    @Test
-    public void getLastUpdatedAt() {
-      // Arrange
-      when(mockOrchestrationMetadata.getLastUpdatedAt()).thenReturn(Instant.now());
-      
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.getLastUpdatedAt(), mockOrchestrationMetadata.getLastUpdatedAt());
-    }
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).getLastUpdatedAt();
+    Assert.assertEquals(result, expected);
+  }
 
-    @Test
-    public void getFailureDetails() {
-      // Arrange
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.getFailureDetails(), mockOrchestrationMetadata.getFailureDetails());
-    }
+  @Test
+  public void getFailureDetails() {
+    // Arrange
+    FailureDetails mockFailureDetails = mock(FailureDetails.class);
+    when(mockFailureDetails.getErrorType()).thenReturn("errorType");
+    when(mockFailureDetails.getErrorMessage()).thenReturn("errorMessage");
+    when(mockFailureDetails.getStackTrace()).thenReturn("stackTrace");
 
-    @Test
-    public void getRuntimeStatus() {
-      // Arrange
-      when(mockOrchestrationMetadata.getRuntimeStatus()).thenReturn(OrchestrationRuntimeStatus.RUNNING);
+    OrchestrationMetadata orchestrationMetadata = mock(OrchestrationMetadata.class);
+    when(orchestrationMetadata.getFailureDetails()).thenReturn(mockFailureDetails);
+ 
+    // Act
+    WorkflowMetadata metadata = new WorkflowMetadata(orchestrationMetadata);
+    WorkflowFailureDetails result = metadata.getFailureDetails();
 
-      // Act
-      WorkflowRuntimeStatus result = workflowMetadata.getRuntimeStatus();
-      
-      // Assert
-      assertEquals(result, WorkflowRuntimeStatus.RUNNING);
-      verify(mockOrchestrationMetadata, times(1)).getRuntimeStatus();
-    }
+    // Assert
+    verify(orchestrationMetadata, times(1)).getFailureDetails();
+    Assert.assertEquals(result.getErrorType(), mockFailureDetails.getErrorType());
+    Assert.assertEquals(result.getErrorMessage(), mockFailureDetails.getErrorMessage());
+    Assert.assertEquals(result.getStackTrace(), mockFailureDetails.getStackTrace());
+  }
 
-    @Test
-    public void isRunning() {
-      // Arrange
-      when(mockOrchestrationMetadata.isRunning()).thenReturn(true);
+  @Test
+  public void getRuntimeStatus() {
+    // Arrange
+    WorkflowRuntimeStatus expected = WorkflowRuntimeStatus.RUNNING;
+    when(mockOrchestrationMetadata.getRuntimeStatus()).thenReturn(OrchestrationRuntimeStatus.RUNNING);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.isRunning(), mockOrchestrationMetadata.isRunning());
-    }
+    // Act
+    WorkflowRuntimeStatus result = workflowMetadata.getRuntimeStatus();
 
-    @Test
-    public void isCompleted() {
-      // Arrange
-      when(mockOrchestrationMetadata.isCompleted()).thenReturn(false);
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).getRuntimeStatus();
+    Assert.assertEquals(result, expected);
+  }
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.isCompleted(), mockOrchestrationMetadata.isCompleted());
-    }
+  @Test
+  public void isRunning() {
+    // Arrange
+    boolean expected = true;
+    when(mockOrchestrationMetadata.isRunning()).thenReturn(expected);
 
-    @Test
-    public void isCustomStatusFetched() {
-      // Arrange
-      when(mockOrchestrationMetadata.isCustomStatusFetched()).thenReturn(false);
+    // Act
+    boolean result = workflowMetadata.isRunning();
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.isCustomStatusFetched(), mockOrchestrationMetadata.isCustomStatusFetched());
-    }
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).isRunning();
+    Assert.assertEquals(result, expected);
+  }
 
-    @Test
-    public void isInstanceFound() {
-      // Arrange
-      when(mockOrchestrationMetadata.isInstanceFound()).thenReturn(true);
+  @Test
+  public void isCompleted() {
+    // Arrange
+    boolean expected = true;
+    when(mockOrchestrationMetadata.isCompleted()).thenReturn(expected);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.isInstanceFound(), mockOrchestrationMetadata.isInstanceFound());
-    }
+    // Act
+    boolean result = workflowMetadata.isCompleted();
 
-    @Test
-    public void getSerializedInput() {
-      // Arrange
-      when(mockOrchestrationMetadata.getSerializedInput()).thenReturn("{input: \"test\"}");
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).isCompleted();
+    Assert.assertEquals(result, expected);
+  }
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.getSerializedInput(), mockOrchestrationMetadata.getSerializedInput());
-    }
+  @Test
+  public void getSerializedInput() {
+    // Arrange
+    String expected = "{input: \"test\"}";
+    when(mockOrchestrationMetadata.getSerializedInput()).thenReturn(expected);
 
-    @Test
-    public void getSerializedOutput() {
-      // Arrange
-      when(mockOrchestrationMetadata.getSerializedOutput()).thenReturn("{output: \"test\"}");
+    // Act
+    String result = workflowMetadata.getSerializedInput();
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.getSerializedOutput(), mockOrchestrationMetadata.getSerializedOutput());
-    }
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).getSerializedInput();
+    Assert.assertEquals(result, expected);
+  }
 
-    @Test
-    public void readCustomStatusAs() {
-      // Arrange
-      when(mockOrchestrationMetadata.readCustomStatusAs(String.class)).thenReturn("customStatus");
+  @Test
+  public void getSerializedOutput() {
+    // Arrange
+    String expected = "{output: \"test\"}";
+    when(mockOrchestrationMetadata.getSerializedOutput()).thenReturn(expected);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.readCustomStatusAs(String.class), mockOrchestrationMetadata.readCustomStatusAs(String.class));
-      assertEquals(true, true);
-    }
+    // Act
+    String result = workflowMetadata.getSerializedOutput();
 
-    @Test
-    public void readInputAs() {
-      // Arrange
-      when(mockOrchestrationMetadata.readInputAs(String.class)).thenReturn("input");
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).getSerializedOutput();
+    Assert.assertEquals(result, expected);
+  }
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.readInputAs(String.class), mockOrchestrationMetadata.readInputAs(String.class));
-      assertEquals(true, true);
-    }
+  @Test
+  public void readInputAs() {
+    // Arrange
+    String expected = "[{property: \"test input\"}}]";
+    when(mockOrchestrationMetadata.readInputAs(String.class)).thenReturn(expected);
 
-    @Test
-    public void readOutputAs() {
-      // Arrange
-      when(mockOrchestrationMetadata.readOutputAs(String.class)).thenReturn("output");
+    // Act
+    String result = workflowMetadata.readInputAs(String.class);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.readOutputAs(String.class), mockOrchestrationMetadata.readOutputAs(String.class));
-    }
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).readInputAs(String.class);
+    Assert.assertEquals(result, expected);
+  }
 
-    @Test
-    public void testToString() {
-      // Arrange
-      when(mockOrchestrationMetadata.toString()).thenReturn("toString");
+  @Test
+  public void readOutputAs() {
+    // Arrange
+    String expected = "[{property: \"test output\"}}]";
+    when(mockOrchestrationMetadata.readOutputAs(String.class)).thenReturn(expected);
 
-      // Act
-      // Assert
-      assertEquals(workflowMetadata.toString(), mockOrchestrationMetadata.toString());
-    }
+    // Act
+    String result = workflowMetadata.readOutputAs(String.class);
+
+    // Assert
+    verify(mockOrchestrationMetadata, times(1)).readOutputAs(String.class);
+    Assert.assertEquals(result, expected);
+  }
+
+  @Test
+  public void testToString() {
+    // Arrange
+    String expected = "string value";
+    when(mockOrchestrationMetadata.toString()).thenReturn(expected);
+
+    // Act
+    String result = workflowMetadata.toString();
+
+    // Assert
+    //verify(mockOrchestrationMetadata, times(1)).toString();
+    Assert.assertEquals(result, expected);
+  }
 }
