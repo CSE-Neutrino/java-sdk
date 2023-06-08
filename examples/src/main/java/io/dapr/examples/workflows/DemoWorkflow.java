@@ -40,8 +40,13 @@ public class DemoWorkflow extends Workflow {
     ctx.getLogger().info("Calling Activity...");
     var input = new DemoActivityInput("Hello Activity!");
     var output = ctx.callActivity(DemoWorkflowActivity.class.getName(), input, DemoActivityOutput.class).await();
-    ctx.getLogger().info("Activity returned: " + output.getNewMessage());
 
+    ctx.getLogger().info("Activity returned: " + output);
+    ctx.getLogger().info("Activity returned: " + output.getNewMessage());
+    ctx.getLogger().info("Activity returned: " + output.getOriginalMessage());
+
+
+    ctx.getLogger().info("Workflow finished");
     ctx.complete("finished");
   }
 }

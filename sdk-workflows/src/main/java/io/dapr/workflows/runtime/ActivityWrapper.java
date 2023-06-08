@@ -49,13 +49,14 @@ public class ActivityWrapper<T extends WorkflowActivity> implements TaskActivity
   @Override
   public TaskActivity create() {
     return ctx -> {
+      Object result;
       try {
         T activity = this.activityConstructor.newInstance();
-        activity.run(new WorkflowActivityContext(ctx));
-        return activity;
+        result = activity.run(new WorkflowActivityContext(ctx));
       } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
         throw new RuntimeException(e);
       }
+      return result;
     };
   }
 }

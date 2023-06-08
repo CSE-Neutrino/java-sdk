@@ -45,6 +45,9 @@ public class DemoWorkflowActivity extends WorkflowActivity {
 
     logger.info("Activity finished");
 
-    return new DemoActivityOutput(message, newMessage);
+    var output = new DemoActivityOutput(message, newMessage);
+    logger.info("Activity returned: " + output);
+
+    return output;
   }
 }
