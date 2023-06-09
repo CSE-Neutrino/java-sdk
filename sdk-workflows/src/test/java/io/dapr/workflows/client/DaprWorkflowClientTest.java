@@ -153,6 +153,26 @@ public class DaprWorkflowClientTest {
   }
 
   @Test
+  public void waitForInstanceCompletion() throws TimeoutException {
+
+    // Arrange
+    String instanceId = "TestWorkflowInstanceId";
+    Duration timeout = Duration.ofSeconds(10);
+
+    OrchestrationMetadata expectedMetadata = mock(OrchestrationMetadata.class);
+    when(expectedMetadata.getInstanceId()).thenReturn(instanceId);
+    when(mockInnerClient.waitForInstanceCompletion(instanceId, timeout, true)).thenReturn(expectedMetadata);
+
+    // Act
+    WorkflowMetadata result = client.waitForInstanceCompletion(instanceId, timeout, true);
+
+    // Assert
+    verify(mockInnerClient, times(1)).waitForInstanceCompletion(instanceId, timeout, true);
+    assertNotEquals(result, null);
+    assertEquals(result.getInstanceId(), expectedMetadata.getInstanceId());
+  }
+
+  @Test
   public void close() throws InterruptedException {
     client.close();
     verify(mockInnerClient, times(1)).close();

@@ -157,32 +157,56 @@ public class DaprWorkflowClient implements AutoCloseable {
   }
 
   /**
-   * Waits for an orchestration to start running and returns an
+   * Waits for an workflow to start running and returns an
    * {@link WorkflowMetadata} object that contains metadata about the started 
    * instance and optionally its input, output, and custom status payloads.
    * 
-   * <p>A "started" orchestration instance is any instance not in the
-   * <code>Pending</code> state.
+   * <p>A "started" workflow instance is any instance not in the Pending state.
    * 
-   * <p>If an orchestration instance is already running when this method is called,
+   * <p>If an workflow instance is already running when this method is called,
    * the method will return immediately.
    *
-   * @param instanceId the unique ID of the orchestration instance to wait for
-   * @param timeout the amount of time to wait for the orchestration instance to start
-   * @param getInputsAndOutputs <code>true</code> to fetch the orchestration instance's 
-   *                            inputs, outputs, and custom status, or <code>false</code> to omit them
-   * @throws TimeoutException when the orchestration instance is not started within the specified amount of time
-   * @return the orchestration instance metadata or <code>null</code> if no such instance is found
+   * @param instanceId the unique ID of the workflow instance to wait for
+   * @param timeout the amount of time to wait for the workflow instance to start
+   * @param getInputsAndOutputs true to fetch the workflow instance's 
+   *                            inputs, outputs, and custom status, or false to omit them
+   * @throws TimeoutException when the workflow instance is not started within the specified amount of time
+   * @return the workflow instance metadata or null if no such instance is found
    */
   @Nullable
   public WorkflowMetadata waitForInstanceStart(String instanceId, Duration timeout, boolean getInputsAndOutputs)
       throws TimeoutException {
 
     OrchestrationMetadata metadata = this.innerClient.waitForInstanceStart(instanceId, timeout, getInputsAndOutputs);
-    if (metadata == null) {
-      return null;
-    }
-    return new WorkflowMetadata(metadata);
+    return metadata == null ? null : new WorkflowMetadata(metadata);
+  }
+
+  /**
+   * Waits for an workflow to complete and returns an {@link WorkflowMetadata} object that contains
+   * metadata about the completed instance.
+   * 
+   * <p>A "completed" workflow instance is any instance in one of the terminal states. For example, the
+   * Completed, Failed, or Terminated states.
+   * 
+   * <p>Workflows are long-running and could take hours, days, or months before completing.
+   * Workflows can also be eternal, in which case they'll never complete unless terminated.
+   * In such cases, this call may block indefinitely, so care must be taken to ensure appropriate timeouts are used.
+   * If an workflow instance is already complete when this method is called, the method will return immediately.
+   *
+   * @param instanceId the unique ID of the workflow instance to wait for
+   * @param timeout the amount of time to wait for the workflow instance to complete
+   * @param getInputsAndOutputs true to fetch the workflow instance's inputs, outputs, and custom
+   *                            status, or false to omit them
+   * @throws TimeoutException when the workflow instance is not completed within the specified amount of time
+   * @return the workflow instance metadata or null if no such instance is found
+   */
+  @Nullable
+  public WorkflowMetadata waitForInstanceCompletion(String instanceId, Duration timeout,
+      boolean getInputsAndOutputs) throws TimeoutException {
+
+    OrchestrationMetadata metadata = 
+        this.innerClient.waitForInstanceCompletion(instanceId, timeout, getInputsAndOutputs);
+    return metadata == null ? null : new WorkflowMetadata(metadata);
   }
 
   /**
