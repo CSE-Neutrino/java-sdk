@@ -16,7 +16,9 @@ package io.dapr.examples.workflows;
 import io.dapr.workflows.client.DaprWorkflowClient;
 import io.dapr.workflows.client.WorkflowMetadata;
 
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * For setup instructions, see the README.
@@ -25,6 +27,7 @@ public class DemoWorkflowClient {
 
   /**
    * The main method.
+   * 
    * @param args Input arguments (unused).
    * @throws InterruptedException If program has been interrupted.
    */
@@ -32,23 +35,37 @@ public class DemoWorkflowClient {
     DaprWorkflowClient client = new DaprWorkflowClient();
 
     try (client) {
-      System.out.println("*****");
+      String separatorStr = "*******";
+      System.out.println(separatorStr);
       String instanceId = client.scheduleNewWorkflow(DemoWorkflow.class, "input data");
       System.out.printf("Started new workflow instance with random ID: %s%n", instanceId);
 
-      System.out.println("*****");
-      System.out.println("**getInstanceMetadata:Running**");
+      System.out.println(separatorStr);
+      System.out.println("**GetInstanceMetadata:Running Workflow**");
       WorkflowMetadata workflowMetadata = client.getInstanceMetadata(instanceId, true);
-      System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
+      System.out.printf("Result: %s%n", workflowMetadata);
 
-      System.out.println("Sleep and allow this workflow instance to timeout...");
-      TimeUnit.SECONDS.sleep(10);
+      System.out.println(separatorStr);
+      System.out.println("**WaitForInstanceStart**");
+      try {
+        WorkflowMetadata waitForInstanceStartResult = 
+            client.waitForInstanceStart(instanceId, Duration.ofSeconds(60), true);
+        System.out.printf("Result: %s%n", waitForInstanceStartResult);
+      } catch (TimeoutException ex) {
+        System.out.printf("waitForInstanceStart has an exception:%s%n", ex);
+      }
 
-      System.out.println("**getInstanceMetadata:Completed**");
-      workflowMetadata = client.getInstanceMetadata(instanceId, true);
-      System.out.printf("Workflow instance metadata: %s%n", workflowMetadata);
+      System.out.println(separatorStr);
+      System.out.println("**WaitForInstanceCompletion**");
+      try {
+        WorkflowMetadata waitForInstanceCompletionResult = 
+            client.waitForInstanceCompletion(instanceId, Duration.ofSeconds(60), true);
+        System.out.printf("Result: %s%n", waitForInstanceCompletionResult);
+      } catch (TimeoutException ex) {
+        System.out.printf("waitForInstanceCompletion has an exception:%s%n", ex);
+      }
 
-      System.out.println("*****");
+      System.out.println(separatorStr);
       String instanceToTerminateId = "terminateMe";
       client.scheduleNewWorkflow(DemoWorkflow.class, null, instanceToTerminateId);
       System.out.printf("Started new workflow instance with specified ID: %s%n", instanceToTerminateId);
@@ -56,7 +73,7 @@ public class DemoWorkflowClient {
       TimeUnit.SECONDS.sleep(5);
       System.out.println("Terminate this workflow instance manually before the timeout is reached");
       client.terminateWorkflow(instanceToTerminateId, null);
-      System.out.println("*****");
+      System.out.println(separatorStr);
     }
 
     System.out.println("Exiting DemoWorkflowClient.");
