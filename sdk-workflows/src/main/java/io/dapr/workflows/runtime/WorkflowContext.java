@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 
 import java.io.PrintStream;
 import java.time.Duration;
+import java.time.Instant;
 
 /**
  * Context object used by workflow implementations to perform actions such as scheduling activities,
@@ -48,6 +49,8 @@ public interface WorkflowContext {
    * @return the instance ID of the current workflow
    */
   String getInstanceId();
+
+  Instant getCurrentInstant();
 
   /**
    * Completes the current workflow.
