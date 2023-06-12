@@ -148,17 +148,17 @@ public class DaprWorkflowClient implements AutoCloseable {
      execution status, or a default instance if no such instance is found.
    */
   @Nullable
-  public WorkflowMetadata getInstanceMetadata(String instanceId, boolean getInputsAndOutputs) {
+  public WorkflowState getInstanceState(String instanceId, boolean getInputsAndOutputs) {
     OrchestrationMetadata metadata = this.innerClient.getInstanceMetadata(instanceId, getInputsAndOutputs);
     if (metadata == null) {
       return null;
     }
-    return new WorkflowMetadata(metadata);
+    return new WorkflowState(metadata);
   }
 
   /**
    * Waits for an workflow to start running and returns an
-   * {@link WorkflowMetadata} object that contains metadata about the started 
+   * {@link WorkflowState} object that contains metadata about the started 
    * instance and optionally its input, output, and custom status payloads.
    * 
    * <p>A "started" workflow instance is any instance not in the Pending state.
@@ -174,15 +174,15 @@ public class DaprWorkflowClient implements AutoCloseable {
    * @return the workflow instance metadata or null if no such instance is found
    */
   @Nullable
-  public WorkflowMetadata waitForInstanceStart(String instanceId, Duration timeout, boolean getInputsAndOutputs)
+  public WorkflowState waitForInstanceStart(String instanceId, Duration timeout, boolean getInputsAndOutputs)
       throws TimeoutException {
 
     OrchestrationMetadata metadata = this.innerClient.waitForInstanceStart(instanceId, timeout, getInputsAndOutputs);
-    return metadata == null ? null : new WorkflowMetadata(metadata);
+    return metadata == null ? null : new WorkflowState(metadata);
   }
 
   /**
-   * Waits for an workflow to complete and returns an {@link WorkflowMetadata} object that contains
+   * Waits for an workflow to complete and returns an {@link WorkflowState} object that contains
    * metadata about the completed instance.
    * 
    * <p>A "completed" workflow instance is any instance in one of the terminal states. For example, the
@@ -201,12 +201,12 @@ public class DaprWorkflowClient implements AutoCloseable {
    * @return the workflow instance metadata or null if no such instance is found
    */
   @Nullable
-  public WorkflowMetadata waitForInstanceCompletion(String instanceId, Duration timeout,
+  public WorkflowState waitForInstanceCompletion(String instanceId, Duration timeout,
       boolean getInputsAndOutputs) throws TimeoutException {
 
     OrchestrationMetadata metadata = 
         this.innerClient.waitForInstanceCompletion(instanceId, timeout, getInputsAndOutputs);
-    return metadata == null ? null : new WorkflowMetadata(metadata);
+    return metadata == null ? null : new WorkflowState(metadata);
   }
 
   /**
