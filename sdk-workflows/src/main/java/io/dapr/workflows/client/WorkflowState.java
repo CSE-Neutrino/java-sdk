@@ -33,7 +33,11 @@ public class WorkflowState {
    * @param orchestrationMetadata Durable task orchestration metadata
    */
   public WorkflowState(OrchestrationMetadata orchestrationMetadata) {
-    // This value will be null if the workflow doesn't exist.
+
+    if (orchestrationMetadata == null) {
+      throw new IllegalArgumentException("OrchestrationMetadata is null, cannot create WorkflowMetadata.");
+    }
+
     this.orchestrationMetadata = orchestrationMetadata;
 
     FailureDetails details = orchestrationMetadata.getFailureDetails();
@@ -141,8 +145,7 @@ public class WorkflowState {
    * {@link WorkflowRuntimeStatus#FAILED}, or
    * {@link WorkflowRuntimeStatus#TERMINATED}.
    *
-   * @return {@code true} if the workflow was in a terminal state; otherwise
-   *         {@code false}
+   * @return {@code true} if the workflow was in a terminal state; otherwise {@code false}
    */
   public boolean isCompleted() {
     return orchestrationMetadata.isCompleted();

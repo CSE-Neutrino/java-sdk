@@ -16,6 +16,8 @@ package io.dapr.workflows.client;
 import com.microsoft.durabletask.DurableTaskClient;
 import com.microsoft.durabletask.DurableTaskGrpcClientBuilder;
 import com.microsoft.durabletask.OrchestrationMetadata;
+import com.microsoft.durabletask.OrchestrationStatusQuery;
+import com.microsoft.durabletask.OrchestrationStatusQueryResult;
 import io.dapr.config.Properties;
 import io.dapr.utils.Version;
 import io.dapr.workflows.runtime.Workflow;
@@ -160,15 +162,15 @@ public class DaprWorkflowClient implements AutoCloseable {
    * Waits for an workflow to start running and returns an
    * {@link WorkflowState} object that contains metadata about the started 
    * instance and optionally its input, output, and custom status payloads.
-   * 
+   *
    * <p>A "started" workflow instance is any instance not in the Pending state.
-   * 
-   * <p>If an workflow instance is already running when this method is called,
+   *
+   * <p>If a workflow instance is already running when this method is called,
    * the method will return immediately.
    *
    * @param instanceId the unique ID of the workflow instance to wait for
    * @param timeout the amount of time to wait for the workflow instance to start
-   * @param getInputsAndOutputs true to fetch the workflow instance's 
+   * @param getInputsAndOutputs true to fetch the workflow instance's
    *                            inputs, outputs, and custom status, or false to omit them
    * @throws TimeoutException when the workflow instance is not started within the specified amount of time
    * @return the workflow instance metadata or null if no such instance is found
@@ -184,10 +186,10 @@ public class DaprWorkflowClient implements AutoCloseable {
   /**
    * Waits for an workflow to complete and returns an {@link WorkflowState} object that contains
    * metadata about the completed instance.
-   * 
+   *
    * <p>A "completed" workflow instance is any instance in one of the terminal states. For example, the
    * Completed, Failed, or Terminated states.
-   * 
+   *
    * <p>Workflows are long-running and could take hours, days, or months before completing.
    * Workflows can also be eternal, in which case they'll never complete unless terminated.
    * In such cases, this call may block indefinitely, so care must be taken to ensure appropriate timeouts are used.
@@ -207,6 +209,28 @@ public class DaprWorkflowClient implements AutoCloseable {
     OrchestrationMetadata metadata = 
         this.innerClient.waitForInstanceCompletion(instanceId, timeout, getInputsAndOutputs);
     return metadata == null ? null : new WorkflowState(metadata);
+  }
+
+  /**
+   * Fetches orchestration instance metadata from the configured durable store using a status query filter.
+   *
+   * @param query filter criteria that determines which orchestrations to fetch data for.
+   * @return the result of the query operation, including instance metadata and possibly a continuation token
+   */
+  public WorkflowStatusQueryResult queryInstances(WorkflowStatusQuery query) {
+
+    OrchestrationStatusQuery orchestrationStatusQuery = new OrchestrationStatusQuery()
+        .setContinuationToken(query.getContinuationToken())
+        .setCreatedTimeFrom(query.getCreatedTimeFrom())
+        .setCreatedTimeTo(query.getCreatedTimeTo())
+        .setInstanceIdPrefix(query.getInstanceIdPrefix())
+        .setMaxInstanceCount(query.getMaxInstanceCount())
+        .setRuntimeStatusList(WorkflowRuntimeStatus.toOrchestrationRuntimeStatus(query.getRuntimeStatusList()))
+        .setTaskHubNames(query.getTaskHubNames())
+        .setFetchInputsAndOutputs(query.isFetchInputsAndOutputs());
+
+    OrchestrationStatusQueryResult queryResult = this.innerClient.queryInstances(orchestrationStatusQuery);
+    return queryResult == null ? null : new WorkflowStatusQueryResult(queryResult);
   }
 
   /**
