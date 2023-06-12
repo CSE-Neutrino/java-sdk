@@ -16,21 +16,31 @@ package io.dapr.workflows.client;
 import com.microsoft.durabletask.DurableTaskClient;
 import com.microsoft.durabletask.OrchestrationMetadata;
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+import com.microsoft.durabletask.OrchestrationStatusQuery;
+import com.microsoft.durabletask.OrchestrationStatusQueryResult;
+
 import io.dapr.workflows.runtime.Workflow;
 import io.dapr.workflows.runtime.WorkflowContext;
 import io.grpc.ManagedChannel;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import java.lang.reflect.Constructor;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DaprWorkflowClientTest {
   private static Constructor<DaprWorkflowClient> constructor;
@@ -109,7 +119,7 @@ public class DaprWorkflowClientTest {
   }
 
   @Test
-  public void getInstanceMetadata() {
+  public void getInstanceState() {
 
     // Arrange
     String instanceId = "TestWorkflowInstanceId";
@@ -170,6 +180,47 @@ public class DaprWorkflowClientTest {
     verify(mockInnerClient, times(1)).waitForInstanceCompletion(instanceId, timeout, true);
     assertNotEquals(result, null);
     assertEquals(result.getInstanceId(), expectedMetadata.getInstanceId());
+  }
+
+  @Test
+  public void queryInstances() {
+
+    // Arrange
+    OrchestrationMetadata orchestrationMetadata1 = mock(OrchestrationMetadata.class);
+    when(orchestrationMetadata1.getInstanceId()).thenReturn("TestWorkflowInstanceId1");
+    when(orchestrationMetadata1.getRuntimeStatus()).thenReturn(OrchestrationRuntimeStatus.RUNNING);
+
+    OrchestrationMetadata orchestrationMetadata2 = mock(OrchestrationMetadata.class);
+    when(orchestrationMetadata2.getInstanceId()).thenReturn("TestWorkflowInstanceId2");
+    when(orchestrationMetadata2.getRuntimeStatus()).thenReturn(OrchestrationRuntimeStatus.COMPLETED);
+
+    List<OrchestrationMetadata> orchestrationMetadataList 
+        = Arrays.asList(orchestrationMetadata1, orchestrationMetadata2);
+
+    OrchestrationStatusQueryResult orchestrationStatusQueryResult = mock(OrchestrationStatusQueryResult.class);
+    when(orchestrationStatusQueryResult.getOrchestrationState()).thenReturn(orchestrationMetadataList);
+    when(orchestrationStatusQueryResult.getContinuationToken()).thenReturn("TestContinuationToken");
+
+    when(mockInnerClient.queryInstances(any(OrchestrationStatusQuery.class)))
+        .thenReturn(orchestrationStatusQueryResult);
+      
+    // Act
+    WorkflowStatusQuery statusQuery = new WorkflowStatusQuery();
+    WorkflowStatusQueryResult result = client.queryInstances(statusQuery);
+
+    // Assert
+    verify(mockInnerClient, times(1)).queryInstances(any(OrchestrationStatusQuery.class));
+    assertNotEquals(result, null);
+
+    List<WorkflowState> workflowStates = result.getWorkflowStates();
+    assertEquals(workflowStates.size(), 2);
+    assertEquals(workflowStates.stream().anyMatch(item -> item.getInstanceId() == orchestrationMetadata1.getInstanceId()
+                                          && item.getRuntimeStatus() == WorkflowRuntimeStatus.RUNNING
+                                          ), true);
+
+    assertEquals(workflowStates.stream().anyMatch(item -> item.getInstanceId() == orchestrationMetadata2.getInstanceId()
+                                          && item.getRuntimeStatus() == WorkflowRuntimeStatus.COMPLETED
+                                          ), true);
   }
 
   @Test
