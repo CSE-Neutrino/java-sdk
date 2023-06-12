@@ -66,4 +66,6 @@ public interface WorkflowContext {
    * @return Asynchronous task to {@code await()}.
    */
   Task waitForExternalEvent(String eventName, Duration timeout);
+
+  boolean getIsReplaying();
 }
