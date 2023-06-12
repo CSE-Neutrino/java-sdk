@@ -22,9 +22,9 @@ import java.time.Instant;
  * Represents a snapshot of an workflow instance's current state, including
  * metadata.
  */
-public class WorkflowMetadata {
+public class WorkflowState {
 
-  OrchestrationMetadata workflowMetadata;
+  OrchestrationMetadata orchestrationMetadata;
   WorkflowFailureDetails failureDetails;
 
   /**
@@ -32,9 +32,9 @@ public class WorkflowMetadata {
    *
    * @param orchestrationMetadata Durable task orchestration metadata
    */
-  public WorkflowMetadata(OrchestrationMetadata orchestrationMetadata) {
+  public WorkflowState(OrchestrationMetadata orchestrationMetadata) {
     // This value will be null if the workflow doesn't exist.
-    this.workflowMetadata = orchestrationMetadata;
+    this.orchestrationMetadata = orchestrationMetadata;
 
     FailureDetails details = orchestrationMetadata.getFailureDetails();
     if (details != null) {
@@ -48,7 +48,7 @@ public class WorkflowMetadata {
    * @return the name of the workflow
    */
   public String getName() {
-    return workflowMetadata.getName();
+    return orchestrationMetadata.getName();
   }
 
   /**
@@ -57,7 +57,7 @@ public class WorkflowMetadata {
    * @return the unique ID of the workflow instance
    */
   public String getInstanceId() {
-    return workflowMetadata.getInstanceId();
+    return orchestrationMetadata.getInstanceId();
   }
 
   /**
@@ -68,31 +68,7 @@ public class WorkflowMetadata {
    *         object was fetched
    */
   public WorkflowRuntimeStatus getRuntimeStatus() {
-    if (this.workflowMetadata == null) {
-      return WorkflowRuntimeStatus.Unknown;
-    }
-
-    OrchestrationRuntimeStatus status = this.workflowMetadata.getRuntimeStatus();
-    switch (status) {
-      case RUNNING:
-        return WorkflowRuntimeStatus.RUNNING;
-      case COMPLETED:
-        return WorkflowRuntimeStatus.COMPLETED;
-      case CONTINUED_AS_NEW:
-        return WorkflowRuntimeStatus.CONTINUED_AS_NEW;
-      case FAILED:
-        return WorkflowRuntimeStatus.FAILED;
-      case CANCELED:
-        return WorkflowRuntimeStatus.CANCELED;
-      case TERMINATED:
-        return WorkflowRuntimeStatus.TERMINATED;
-      case PENDING:
-        return WorkflowRuntimeStatus.PENDING;
-      case SUSPENDED:
-        return WorkflowRuntimeStatus.SUSPENDED;
-      default:
-        return WorkflowRuntimeStatus.Unknown;
-    }
+    return WorkflowRuntimeStatus.fromOrchestrationRuntimeStatus(orchestrationMetadata.getRuntimeStatus());
   }
 
   /**
@@ -101,7 +77,7 @@ public class WorkflowMetadata {
    * @return the workflow instance's creation time in UTC
    */
   public Instant getCreatedAt() {
-    return workflowMetadata.getCreatedAt();
+    return orchestrationMetadata.getCreatedAt();
   }
 
   /**
@@ -110,7 +86,7 @@ public class WorkflowMetadata {
    * @return the workflow instance's last updated time in UTC
    */
   public Instant getLastUpdatedAt() {
-    return workflowMetadata.getLastUpdatedAt();
+    return orchestrationMetadata.getLastUpdatedAt();
   }
 
   /**
@@ -119,7 +95,7 @@ public class WorkflowMetadata {
    * @return the workflow instance's serialized input or {@code null}
    */
   public String getSerializedInput() {
-    return workflowMetadata.getSerializedInput();
+    return orchestrationMetadata.getSerializedInput();
   }
 
   /**
@@ -128,7 +104,7 @@ public class WorkflowMetadata {
    * @return the workflow instance's serialized output or {@code null}
    */
   public String getSerializedOutput() {
-    return workflowMetadata.getSerializedOutput();
+    return orchestrationMetadata.getSerializedOutput();
   }
 
   /**
@@ -153,7 +129,7 @@ public class WorkflowMetadata {
    *         otherwise {@code false}
    */
   public boolean isRunning() {
-    return workflowMetadata.isRunning();
+    return orchestrationMetadata.isRunning();
   }
 
   /**
@@ -169,7 +145,7 @@ public class WorkflowMetadata {
    *         {@code false}
    */
   public boolean isCompleted() {
-    return workflowMetadata.isCompleted();
+    return orchestrationMetadata.isCompleted();
   }
 
   /**
@@ -187,7 +163,7 @@ public class WorkflowMetadata {
    *                               to read inputs and outputs
    */
   public <T> T readInputAs(Class<T> type) {
-    return workflowMetadata.readInputAs(type);
+    return orchestrationMetadata.readInputAs(type);
   }
 
   /**
@@ -205,7 +181,7 @@ public class WorkflowMetadata {
    *                               to read inputs and outputs
    */
   public <T> T readOutputAs(Class<T> type) {
-    return workflowMetadata.readOutputAs(type);
+    return orchestrationMetadata.readOutputAs(type);
   }
 
   /**
@@ -215,6 +191,6 @@ public class WorkflowMetadata {
    * @return a user-friendly string representation of the current metadata object
    */
   public String toString() {
-    return workflowMetadata.toString();
+    return orchestrationMetadata.toString();
   }
 }

@@ -16,22 +16,26 @@ package io.dapr.workflows.client;
 import com.microsoft.durabletask.FailureDetails;
 import com.microsoft.durabletask.OrchestrationMetadata;
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.Assert;
-import static org.mockito.Mockito.*;
-
 import java.time.Instant;
 
-public class WorkflowMetadataTest {
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+
+public class WorkflowStateTest {
 
   private OrchestrationMetadata mockOrchestrationMetadata;
-  private WorkflowMetadata workflowMetadata;
+  private WorkflowState workflowMetadata;
 
   @Before
   public void setUp() throws Exception {
     mockOrchestrationMetadata = mock(OrchestrationMetadata.class);
-    workflowMetadata = new WorkflowMetadata(mockOrchestrationMetadata);
+    workflowMetadata = new WorkflowState(mockOrchestrationMetadata);
   }
 
   @Test
@@ -102,7 +106,7 @@ public class WorkflowMetadataTest {
     when(orchestrationMetadata.getFailureDetails()).thenReturn(mockFailureDetails);
  
     // Act
-    WorkflowMetadata metadata = new WorkflowMetadata(orchestrationMetadata);
+    WorkflowState metadata = new WorkflowState(orchestrationMetadata);
     WorkflowFailureDetails result = metadata.getFailureDetails();
 
     // Assert

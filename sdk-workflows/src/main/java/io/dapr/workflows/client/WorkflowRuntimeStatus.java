@@ -13,11 +13,14 @@ limitations under the License.
 
 package io.dapr.workflows.client;
 
+import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Enum describing the runtime status of a workflow.
  */
 public enum WorkflowRuntimeStatus {
-
   /**
    * The workflow started running.
    */
@@ -61,5 +64,81 @@ public enum WorkflowRuntimeStatus {
   /**
    * The status of the workflow is unknown.
    */
-  Unknown
+  UNKNOWN;
+
+  /**
+   * Convert runtime OrchestrationRuntimeStatus to WorkflowRuntimeStatus.
+   *
+   * @param status The OrchestrationRuntimeStatus to convert to WorkflowRuntimeStatus.
+   * @return The runtime status of the workflow.
+   */
+  public static WorkflowRuntimeStatus fromOrchestrationRuntimeStatus(OrchestrationRuntimeStatus status) {
+
+    if (status == null) {
+      return WorkflowRuntimeStatus.UNKNOWN;
+    }
+
+    switch (status) {
+      case RUNNING:
+        return WorkflowRuntimeStatus.RUNNING;
+      case COMPLETED:
+        return WorkflowRuntimeStatus.COMPLETED;
+      case CONTINUED_AS_NEW:
+        return WorkflowRuntimeStatus.CONTINUED_AS_NEW;
+      case FAILED:
+        return WorkflowRuntimeStatus.FAILED;
+      case CANCELED:
+        return WorkflowRuntimeStatus.CANCELED;
+      case TERMINATED:
+        return WorkflowRuntimeStatus.TERMINATED;
+      case PENDING:
+        return WorkflowRuntimeStatus.PENDING;
+      case SUSPENDED:
+        return WorkflowRuntimeStatus.SUSPENDED;
+      default:
+        return WorkflowRuntimeStatus.UNKNOWN;
+    }
+  }
+
+  /**
+   * Convert runtime WorkflowRuntimeStatus to OrchestrationRuntimeStatus.
+   *
+   * @param status The OrchestrationRuntimeStatus to convert to WorkflowRuntimeStatus.
+   * @return The runtime status of the Orchestration.
+   */
+  public static OrchestrationRuntimeStatus toOrchestrationRuntimeStatus(WorkflowRuntimeStatus status) {
+
+    switch (status) {
+      case RUNNING:
+        return OrchestrationRuntimeStatus.RUNNING;
+      case COMPLETED:
+        return OrchestrationRuntimeStatus.COMPLETED;
+      case CONTINUED_AS_NEW:
+        return OrchestrationRuntimeStatus.CONTINUED_AS_NEW;
+      case FAILED:
+        return OrchestrationRuntimeStatus.FAILED;
+      case CANCELED:
+        return OrchestrationRuntimeStatus.CANCELED;
+      case TERMINATED:
+        return OrchestrationRuntimeStatus.TERMINATED;
+      case PENDING:
+        return OrchestrationRuntimeStatus.PENDING;
+      case SUSPENDED:
+        return OrchestrationRuntimeStatus.SUSPENDED;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * Convert runtime WorkflowRuntimeStatus to OrchestrationRuntimeStatus.
+   *
+   * @param statuses The list of orchestrationRuntimeStatus to convert to a list of WorkflowRuntimeStatuses.
+   * @return The list runtime status of the Orchestration.
+   */
+  public static List<OrchestrationRuntimeStatus> toOrchestrationRuntimeStatus(List<WorkflowRuntimeStatus> statuses) {
+    return statuses.stream()
+                   .map(x -> toOrchestrationRuntimeStatus(x)) 
+                   .collect(Collectors.toList());
+  }
 }
