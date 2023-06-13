@@ -50,6 +50,10 @@ public interface WorkflowContext {
    */
   String getInstanceId();
 
+  /**
+   * Gets the current orchestration time in UTC.
+   * @return the current orchestration time in UTC
+   */
   Instant getCurrentInstant();
 
   /**
