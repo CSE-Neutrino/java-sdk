@@ -23,7 +23,6 @@ import java.time.Duration;
  * Implementation of the DemoWorkflow for the server side.
  */
 public class DemoWorkflow extends Workflow {
-
   @Override
   public void run(WorkflowContext ctx) {
     ctx.getLogger().info("Starting Workflow: " + ctx.getName());
@@ -37,6 +36,17 @@ public class DemoWorkflow extends Workflow {
       ctx.getLogger().warn("Timed out");
       ctx.getLogger().warn(e.getMessage());
     }
+
+    ctx.getLogger().info("Calling Activity...");
+    var input = new DemoActivityInput("Hello Activity!");
+    var output = ctx.callActivity(DemoWorkflowActivity.class.getName(), input, DemoActivityOutput.class).await();
+
+    ctx.getLogger().info("Activity returned: " + output);
+    ctx.getLogger().info("Activity returned: " + output.getNewMessage());
+    ctx.getLogger().info("Activity returned: " + output.getOriginalMessage());
+
+
+    ctx.getLogger().info("Workflow finished");
     ctx.complete("finished");
   }
 }
