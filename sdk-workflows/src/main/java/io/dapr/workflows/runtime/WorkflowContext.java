@@ -53,6 +53,7 @@ public interface WorkflowContext {
 
   /**
    * Gets the current orchestration time in UTC.
+   *
    * @return the current orchestration time in UTC
    */
   Instant getCurrentInstant();
@@ -74,8 +75,7 @@ public interface WorkflowContext {
    * @return Asynchronous task to {@code await()}.
    */
   Task waitForExternalEvent(String eventName, Duration timeout);
-  
-  
+
 
   /**
    * Asynchronously invokes an activity by name and with the specified input value and returns a new {@link Task}
@@ -101,7 +101,7 @@ public interface WorkflowContext {
    * @see #callActivity(String, Object, TaskOptions, Class)
    */
   default Task<Void> callActivity(String name) {
-    return this.callActivity(name, Void.class);
+    return this.callActivity(name, null, null, Void.class);
   }
 
   /**
