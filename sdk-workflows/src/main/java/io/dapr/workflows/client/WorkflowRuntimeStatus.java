@@ -14,6 +14,8 @@ limitations under the License.
 package io.dapr.workflows.client;
 
 import com.microsoft.durabletask.OrchestrationRuntimeStatus;
+
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -106,7 +108,12 @@ public enum WorkflowRuntimeStatus {
    * @param status The OrchestrationRuntimeStatus to convert to WorkflowRuntimeStatus.
    * @return The runtime status of the Orchestration.
    */
+  @Nullable
   public static OrchestrationRuntimeStatus toOrchestrationRuntimeStatus(WorkflowRuntimeStatus status) {
+
+    if (status == null || status == WorkflowRuntimeStatus.UNKNOWN) {
+      return null;
+    }
 
     switch (status) {
       case RUNNING:
@@ -137,8 +144,9 @@ public enum WorkflowRuntimeStatus {
    * @return The list runtime status of the Orchestration.
    */
   public static List<OrchestrationRuntimeStatus> toOrchestrationRuntimeStatus(List<WorkflowRuntimeStatus> statuses) {
-    return statuses.stream()
-                   .map(x -> toOrchestrationRuntimeStatus(x)) 
-                   .collect(Collectors.toList());
+    return statuses == null ? null : 
+                    statuses.stream().map(x -> toOrchestrationRuntimeStatus(x))
+                            .filter(x -> x != null)
+                            .collect(Collectors.toList());
   }
 }

@@ -58,7 +58,7 @@ public class WorkflowStatusQuery {
    *                        filter
    * @return this query object
    */
-  public WorkflowStatusQuery setCreatedTimeFrom(@Nullable Instant createdTimeFrom) {
+  public WorkflowStatusQuery setCreatedTimeFrom(Instant createdTimeFrom) {
     this.createdTimeFrom = createdTimeFrom;
     return this;
   }
@@ -70,7 +70,7 @@ public class WorkflowStatusQuery {
    *        to disable this filter
    * @return this query object
    */
-  public WorkflowStatusQuery setCreatedTimeTo(@Nullable Instant createdTimeTo) {
+  public WorkflowStatusQuery setCreatedTimeTo(Instant createdTimeTo) {
     this.createdTimeTo = createdTimeTo;
     return this;
   }
