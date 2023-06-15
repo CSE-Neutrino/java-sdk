@@ -13,6 +13,7 @@ limitations under the License.
 
 package io.dapr.examples.workflows;
 
+import com.microsoft.durabletask.OrchestrationRuntimeStatus;
 import io.dapr.workflows.client.DaprWorkflowClient;
 import io.dapr.workflows.client.WorkflowRuntimeStatus;
 import io.dapr.workflows.client.WorkflowState;
@@ -84,6 +85,19 @@ public class DemoWorkflowClient {
       } catch (TimeoutException ex) {
         System.out.printf("waitForInstanceCompletion has an exception:%s%n", ex);
       }
+
+      System.out.println(separatorStr);
+      System.out.println("**purgeInstance**");
+      boolean purgeResult = client.purgeInstance(instanceId);
+      System.out.printf("purgeResult: %s%n",purgeResult);
+
+      System.out.println(separatorStr);
+      System.out.println("**raiseEvent**");
+
+      String eventInstanceId = client.scheduleNewWorkflow(DemoWorkflow.class);
+      System.out.printf("Started new workflow instance with random ID: %s%n", eventInstanceId);
+      client.raiseEvent(eventInstanceId, "TestException", null);
+      System.out.printf("Event raised for workflow with instanceId: %s\n", eventInstanceId);
 
       System.out.println(separatorStr);
       String instanceToTerminateId = "terminateMe";

@@ -16,6 +16,7 @@ package io.dapr.workflows.client;
 import com.microsoft.durabletask.DurableTaskClient;
 import com.microsoft.durabletask.DurableTaskGrpcClientBuilder;
 import com.microsoft.durabletask.OrchestrationMetadata;
+import com.microsoft.durabletask.PurgeResult;
 import com.microsoft.durabletask.OrchestrationStatusQuery;
 import com.microsoft.durabletask.OrchestrationStatusQueryResult;
 import io.dapr.config.Properties;
@@ -97,7 +98,7 @@ public class DaprWorkflowClient implements AutoCloseable {
   /**
    * Schedules a new workflow using DurableTask client.
    *
-   * @param <T> any Workflow type
+   * @param <T>   any Workflow type
    * @param clazz Class extending Workflow to start an instance of.
    * @return the randomly-generated instance ID for new Workflow instance.
    */
@@ -108,7 +109,7 @@ public class DaprWorkflowClient implements AutoCloseable {
   /**
    * Schedules a new workflow using DurableTask client.
    *
-   * @param <T> any Workflow type
+   * @param <T>   any Workflow type
    * @param clazz Class extending Workflow to start an instance of.
    * @param input the input to pass to the scheduled orchestration instance. Must be serializable.
    * @return the randomly-generated instance ID for new Workflow instance.
@@ -120,9 +121,9 @@ public class DaprWorkflowClient implements AutoCloseable {
   /**
    * Schedules a new workflow using DurableTask client.
    *
-   * @param <T> any Workflow type
-   * @param clazz Class extending Workflow to start an instance of.
-   * @param input the input to pass to the scheduled orchestration instance. Must be serializable.
+   * @param <T>        any Workflow type
+   * @param clazz      Class extending Workflow to start an instance of.
+   * @param input      the input to pass to the scheduled orchestration instance. Must be serializable.
    * @param instanceId the unique ID of the orchestration instance to schedule
    * @return the <code>instanceId</code> parameter value.
    */
@@ -134,7 +135,7 @@ public class DaprWorkflowClient implements AutoCloseable {
    * Terminates the workflow associated with the provided instance id.
    *
    * @param workflowInstanceId Workflow instance id to terminate.
-   * @param output the optional output to set for the terminated orchestration instance.
+   * @param output             the optional output to set for the terminated orchestration instance.
    */
   public void terminateWorkflow(String workflowInstanceId, @Nullable Object output) {
     this.innerClient.terminate(workflowInstanceId, output);
@@ -209,6 +210,39 @@ public class DaprWorkflowClient implements AutoCloseable {
     OrchestrationMetadata metadata = 
         this.innerClient.waitForInstanceCompletion(instanceId, timeout, getInputsAndOutputs);
     return metadata == null ? null : new WorkflowState(metadata);
+  }
+
+  /**
+   *Sends an event notification message to awaiting workflow instance.
+   *
+   *@param workflowInstanceId The ID of the workflow instance that will handle the event.
+   *@param eventName The name of the event. Event names are case-insensitive.
+   *@param eventPayload The serializable data payload to include with the event.
+   */
+  public void raiseEvent(String workflowInstanceId, String eventName, Object eventPayload) {
+    this.innerClient.raiseEvent(workflowInstanceId, eventName, eventPayload);
+  }
+
+  /**
+   *Purges workflow instance state from the workflow state store.
+   *
+   *@param workflowInstanceId The unique ID of the workflow instance to purge.
+   *@return Return true if the workflow state was found and purged successfully otherwise false.
+   */
+  public boolean purgeInstance(String workflowInstanceId) {
+    PurgeResult result = this.innerClient.purgeInstance(workflowInstanceId);
+    if (result != null) {
+      return result.getDeletedInstanceCount() > 0;
+    }
+    return false;
+  }
+
+  public void createTaskHub(boolean recreateIfExists) {
+    this.innerClient.createTaskHub(recreateIfExists);
+  }
+
+  public void deleteTaskHub() {
+    this.innerClient.deleteTaskHub();
   }
 
   /**

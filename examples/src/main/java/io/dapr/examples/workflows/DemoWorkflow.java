@@ -18,17 +18,16 @@ import io.dapr.workflows.runtime.Workflow;
 import io.dapr.workflows.runtime.WorkflowContext;
 
 import java.time.Duration;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Implementation of the DemoWorkflow for the server side.
  */
 public class DemoWorkflow extends Workflow {
-
   @Override
   public void run(WorkflowContext ctx) {
     ctx.getLogger().info("Starting Workflow: " + ctx.getName());
     ctx.getLogger().info("Instance ID: " + ctx.getInstanceId());
+    ctx.getLogger().info("Current Orchestration Time: " + ctx.getCurrentInstant());
     ctx.getLogger().info("Waiting for event: 'myEvent'...");
     try {
       ctx.waitForExternalEvent("myEvent", Duration.ofSeconds(10)).await();
@@ -37,6 +36,17 @@ public class DemoWorkflow extends Workflow {
       ctx.getLogger().warn("Timed out");
       ctx.getLogger().warn(e.getMessage());
     }
+
+    ctx.getLogger().info("Calling Activity...");
+    var input = new DemoActivityInput("Hello Activity!");
+    var output = ctx.callActivity(DemoWorkflowActivity.class.getName(), input, DemoActivityOutput.class).await();
+
+    ctx.getLogger().info("Activity returned: " + output);
+    ctx.getLogger().info("Activity returned: " + output.getNewMessage());
+    ctx.getLogger().info("Activity returned: " + output.getOriginalMessage());
+
+
+    ctx.getLogger().info("Workflow finished");
     ctx.complete("finished");
   }
 }

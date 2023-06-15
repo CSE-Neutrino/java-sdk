@@ -48,7 +48,7 @@ public class DaprWorkflowClientTest {
   private DurableTaskClient mockInnerClient;
   private ManagedChannel mockGrpcChannel;
 
-  public class TestWorkflow extends Workflow {
+  public static class TestWorkflow extends Workflow {
     @Override
     public void run(WorkflowContext ctx) {
     }
@@ -56,7 +56,7 @@ public class DaprWorkflowClientTest {
 
   @BeforeClass
   public static void beforeAll() {
-        constructor =
+    constructor =
         Constructor.class.cast(Arrays.stream(DaprWorkflowClient.class.getDeclaredConstructors())
             .filter(c -> c.getParameters().length == 2).map(c -> {
               c.setAccessible(true);
@@ -180,6 +180,36 @@ public class DaprWorkflowClientTest {
     verify(mockInnerClient, times(1)).waitForInstanceCompletion(instanceId, timeout, true);
     assertNotEquals(result, null);
     assertEquals(result.getInstanceId(), expectedMetadata.getInstanceId());
+  }
+
+  @Test
+  public void raiseEvent(){
+    String expectedInstanceId="TestWorkflowInstanceId";
+    String expectedEventName="TestEventName";
+    Object expectedEventPayload=new Object();
+    client.raiseEvent(expectedInstanceId,expectedEventName,expectedEventPayload);
+    verify(mockInnerClient,times(1)).raiseEvent(expectedInstanceId,
+            expectedEventName,expectedEventPayload);
+  }
+
+  @Test
+  public void purgeInstance(){
+    String expectedArgument="TestWorkflowInstanceId";
+    client.purgeInstance(expectedArgument);
+    verify(mockInnerClient,times(1)).purgeInstance(expectedArgument);
+  }
+
+  @Test
+  public void createTaskHub(){
+    boolean expectedArgument=true;
+    client.createTaskHub(expectedArgument);
+    verify(mockInnerClient,times(1)).createTaskHub(expectedArgument);
+  }
+
+  @Test
+  public void deleteTaskHub(){
+    client.deleteTaskHub();
+    verify(mockInnerClient,times(1)).deleteTaskHub();
   }
 
   @Test
