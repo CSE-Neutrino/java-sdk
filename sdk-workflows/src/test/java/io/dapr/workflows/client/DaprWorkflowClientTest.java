@@ -36,6 +36,10 @@ import java.util.concurrent.TimeoutException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -180,6 +184,36 @@ public class DaprWorkflowClientTest {
     verify(mockInnerClient, times(1)).waitForInstanceCompletion(instanceId, timeout, true);
     assertNotEquals(result, null);
     assertEquals(result.getInstanceId(), expectedMetadata.getInstanceId());
+  }
+
+  @Test
+  public void raiseEvent(){
+    String expectedInstanceId="TestWorkflowInstanceId";
+    String expectedEventName="TestEventName";
+    Object expectedEventPayload=new Object();
+    client.raiseEvent(expectedInstanceId,expectedEventName,expectedEventPayload);
+    verify(mockInnerClient,times(1)).raiseEvent(expectedInstanceId,
+            expectedEventName,expectedEventPayload);
+  }
+
+  @Test
+  public void purgeInstance(){
+    String expectedArgument="TestWorkflowInstanceId";
+    client.purgeInstance(expectedArgument);
+    verify(mockInnerClient,times(1)).purgeInstance(expectedArgument);
+  }
+
+  @Test
+  public void createTaskHub(){
+    boolean expectedArgument=true;
+    client.createTaskHub(expectedArgument);
+    verify(mockInnerClient,times(1)).createTaskHub(expectedArgument);
+  }
+
+  @Test
+  public void deleteTaskHub(){
+    client.deleteTaskHub();
+    verify(mockInnerClient,times(1)).deleteTaskHub();
   }
 
   @Test

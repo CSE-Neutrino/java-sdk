@@ -30,7 +30,7 @@ public class DemoWorkflowClient {
 
   /**
    * The main method.
-   * 
+   *
    * @param args Input arguments (unused).
    * @throws InterruptedException If program has been interrupted.
    */
@@ -51,7 +51,7 @@ public class DemoWorkflowClient {
       System.out.println(separatorStr);
       System.out.println("**WaitForInstanceStart**");
       try {
-        WorkflowState waitForInstanceStartResult = 
+        WorkflowState waitForInstanceStartResult =
             client.waitForInstanceStart(instanceId, Duration.ofSeconds(60), true);
         System.out.printf("Result: %s%n", waitForInstanceStartResult);
       } catch (TimeoutException ex) {
@@ -59,9 +59,13 @@ public class DemoWorkflowClient {
       }
 
       System.out.println(separatorStr);
+      System.out.println("**SendExternalMessage**");
+      client.raiseEvent(instanceId, "TestEvent", "TestEventPayload");
+
+      System.out.println(separatorStr);
       System.out.println("**WaitForInstanceCompletion**");
       try {
-        WorkflowState waitForInstanceCompletionResult = 
+        WorkflowState waitForInstanceCompletionResult =
             client.waitForInstanceCompletion(instanceId, Duration.ofSeconds(60), true);
         System.out.printf("Result: %s%n", waitForInstanceCompletionResult);
       } catch (TimeoutException ex) {
@@ -71,7 +75,7 @@ public class DemoWorkflowClient {
       System.out.println(separatorStr);
       System.out.println("**purgeInstance**");
       boolean purgeResult = client.purgeInstance(instanceId);
-      System.out.printf("purgeResult: %s%n",purgeResult);
+      System.out.printf("purgeResult: %s%n", purgeResult);
 
       System.out.println(separatorStr);
       System.out.println("**raiseEvent**");
