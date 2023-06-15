@@ -13,16 +13,13 @@ limitations under the License.
 
 package io.dapr.examples.workflows;
 
-import com.microsoft.durabletask.OrchestrationRuntimeStatus;
 import io.dapr.workflows.client.DaprWorkflowClient;
-import io.dapr.workflows.client.WorkflowRuntimeStatus;
 import io.dapr.workflows.client.WorkflowState;
 import io.dapr.workflows.client.WorkflowStatusQuery;
 import io.dapr.workflows.client.WorkflowStatusQueryResult;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -50,21 +47,6 @@ public class DemoWorkflowClient {
       System.out.println("**GetInstanceMetadata:Running Workflow**");
       WorkflowState workflowMetadata = client.getInstanceState(instanceId, true);
       System.out.printf("Result: %s%n", workflowMetadata);
-
-      System.out.println(separatorStr);
-      System.out.println("**QueryInstances**");
-      WorkflowStatusQuery statusQuery = new WorkflowStatusQuery()
-          .setContinuationToken(null)
-          .setCreatedTimeFrom(Instant.now().minusSeconds(180))
-          .setCreatedTimeTo(Instant.now().plusSeconds(180))
-          //.setInstanceIdPrefix(instanceId)
-          //.setMaxInstanceCount(100)
-          //.setRuntimeStatusList(Arrays.asList(WorkflowRuntimeStatus.RUNNING, WorkflowRuntimeStatus.COMPLETED))
-          //.setTaskHubNames(query.getTaskHubNames())
-          .setFetchInputsAndOutputs(true);  
-
-      WorkflowStatusQueryResult workflowStatusQueryResult = client.queryInstances(statusQuery);
-      System.out.printf("Result: %s%n", workflowStatusQueryResult);
 
       System.out.println(separatorStr);
       System.out.println("**WaitForInstanceStart**");
@@ -107,7 +89,13 @@ public class DemoWorkflowClient {
       TimeUnit.SECONDS.sleep(5);
       System.out.println("Terminate this workflow instance manually before the timeout is reached");
       client.terminateWorkflow(instanceToTerminateId, null);
+
       System.out.println(separatorStr);
+      System.out.println("**QueryInstances**");
+      WorkflowStatusQuery noFilter = new WorkflowStatusQuery();  
+      WorkflowStatusQueryResult workflowStatusQueryResult = client.queryInstances(noFilter);
+      System.out.printf("QueryInstances Result: %s%n", workflowStatusQueryResult);
+
     }
 
     System.out.println("Exiting DemoWorkflowClient.");
