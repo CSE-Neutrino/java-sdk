@@ -90,16 +90,35 @@ public class DemoWorkflow extends Workflow {
     ctx.getLogger().info("Activity returned: " + output);
     ctx.getLogger().info("Activity returned: " + output.getNewMessage());
     ctx.getLogger().info("Activity returned: " + output.getOriginalMessage());
+    
+    
 
+    boolean shouldComplete = true;
+    ctx.getLogger().info("Waiting for event: 'RestartEvent'...");
+    try {
+      ctx.waitForExternalEvent("RestartEvent", Duration.ofSeconds(10)).await();
+      ctx.getLogger().info("Received RestartEvent");
+      ctx.getLogger().info("Restarting Workflow by calling continueAsNew...");
+      ctx.continueAsNew("TestInputRestart", false);
+      shouldComplete = false;
+    } catch (TaskCanceledException e) {
+      ctx.getLogger().warn("Restart Timed out");
+      ctx.getLogger().warn(e.getMessage());
+    }
 
-    ctx.getLogger().info("Child-Workflow> Calling ChildWorkflow...");
-    var childWorkflowInput = "Hello ChildWorkflow!";
-    var childWorkflowOutput = ctx.callSubWorkflow(DemoSubWorkflow.class.getName(), childWorkflowInput, 
-          String.class).await();
+    if (shouldComplete) {
+        ctx.getLogger().info("Child-Workflow> Calling ChildWorkflow...");
+        var childWorkflowInput = "Hello ChildWorkflow!";
+        var childWorkflowOutput = ctx.callSubWorkflow(DemoSubWorkflow.class.getName(), childWorkflowInput, String.class).await();
 
-    ctx.getLogger().info("Child-Workflow> returned: " + childWorkflowOutput);
+        ctx.getLogger().info("Child-Workflow> returned: " + childWorkflowOutput);
 
-    ctx.getLogger().info("Workflow finished");
-    ctx.complete("finished");
+        ctx.getLogger().info("Workflow finished");
+        ctx.complete("finished");
+        
+        return;
+    }
+    
+    ctx.getLogger().info("Workflow restarted");
   }
 }
