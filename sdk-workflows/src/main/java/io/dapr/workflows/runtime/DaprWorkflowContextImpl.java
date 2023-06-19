@@ -144,6 +144,8 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
   public Task<Void> createTimer(Duration duration) {
     return this.innerContext.createTimer(duration);
   }
+  
+  
 
   /**
    * {@inheritDoc}
@@ -161,5 +163,23 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
 
     return this.innerContext.callSubOrchestrator(name, input, instanceID, options, returnType);
   }
+  
+  
 
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void continueAsNew(Object input) {
+    this.innerContext.continueAsNew(input);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void continueAsNew(Object input, boolean preserveUnprocessedEvents) {
+    this.innerContext.continueAsNew(input, preserveUnprocessedEvents);
+  }
 }

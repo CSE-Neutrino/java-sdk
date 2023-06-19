@@ -269,10 +269,9 @@ public interface WorkflowContext {
    * }</pre>
    *
    * @param tasks the list of {@code Task} objects
-   * @param <V> the return type of the {@code Task} objects
+   * @param <V>   the return type of the {@code Task} objects
    * @return the values of the completed {@code Task} objects in the same order as the source list
    * @throws CompositeTaskFailedException if the specified {@code timeout} value expires before the event is received
-   *
    */
   <V> Task<List<V>> allOf(List<Task<V>> tasks) throws CompositeTaskFailedException;
 
@@ -352,6 +351,8 @@ public interface WorkflowContext {
   default Task<Void> createTimer(ZonedDateTime zonedDateTime) {
     throw new UnsupportedOperationException("This method is not implemented.");
   }
+  
+  
 
   /**
    * Gets the deserialized input of the current task orchestration.
@@ -479,4 +480,43 @@ public interface WorkflowContext {
           @Nullable String instanceID,
           @Nullable TaskOptions options,
           Class<V> returnType);
+          
+
+   
+
+  /**
+   * Restarts the orchestration with a new input and clears its history. See {@link #continueAsNew(Object, boolean)}
+   * for a full description.
+   *
+   * @param input the serializable input data to re-initialize the instance with
+   */
+  default void continueAsNew(Object input) {
+    this.continueAsNew(input, true);
+  }
+
+  /**
+   * Restarts the orchestration with a new input and clears its history.
+   *
+   * <p>This method is primarily designed for eternal orchestrations, which are orchestrations that
+   * may not ever complete. It works by restarting the orchestration, providing it with a new input,
+   * and truncating the existing orchestration history. It allows an orchestration to continue
+   * running indefinitely without having its history grow unbounded. The benefits of periodically
+   * truncating history include decreased memory usage, decreased storage volumes, and shorter orchestrator
+   * replays when rebuilding state.
+   *
+   * <p>The results of any incomplete tasks will be discarded when an orchestrator calls {@code continueAsNew}.
+   * For example, if a timer is scheduled and then {@code continueAsNew} is called before the timer fires, the timer
+   * event will be discarded. The only exception to this is external events. By default, if an external event is
+   * received by an orchestration but not yet processed, the event is saved in the orchestration state unit it is
+   * received by a call to {@link #waitForExternalEvent}. These events will remain in memory
+   * even after an orchestrator restarts using {@code continueAsNew}. This behavior can be disabled by specifying
+   * {@code false} for the {@code preserveUnprocessedEvents} parameter value.
+   *
+   * <p>Orchestrator implementations should complete immediately after calling the{@code continueAsNew} method.
+   *
+   * @param input                     the serializable input data to re-initialize the instance with
+   * @param preserveUnprocessedEvents {@code true} to push unprocessed external events into the new orchestration
+   *                                  history, otherwise {@code false}
+   */
+  void continueAsNew(Object input, boolean preserveUnprocessedEvents);
 }
