@@ -60,7 +60,7 @@ public class DemoWorkflowClient {
       client.raiseEvent(instanceId, "TestEvent", "TestEventPayload");
 
       System.out.println(separatorStr);
-      System.out.println("** Registering parallel Events to be captured by allOf(t1,t2,t3**");
+      System.out.println("** Registering parallel Events to be captured by allOf(t1,t2,t3) **");
       client.raiseEvent(instanceId, "event1", "TestEvent 1 Payload");
       client.raiseEvent(instanceId, "event2", "TestEvent 2 Payload");
       client.raiseEvent(instanceId, "event3", "TestEvent 3 Payload");
