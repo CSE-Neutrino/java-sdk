@@ -90,8 +90,7 @@ public class DemoWorkflow extends Workflow {
     ctx.getLogger().info("Activity returned: " + output);
     ctx.getLogger().info("Activity returned: " + output.getNewMessage());
     ctx.getLogger().info("Activity returned: " + output.getOriginalMessage());
-    
-    
+
 
     boolean shouldComplete = true;
     ctx.getLogger().info("Waiting for event: 'RestartEvent'...");
@@ -107,18 +106,19 @@ public class DemoWorkflow extends Workflow {
     }
 
     if (shouldComplete) {
-        ctx.getLogger().info("Child-Workflow> Calling ChildWorkflow...");
-        var childWorkflowInput = "Hello ChildWorkflow!";
-        var childWorkflowOutput = ctx.callSubWorkflow(DemoSubWorkflow.class.getName(), childWorkflowInput, String.class).await();
+      ctx.getLogger().info("Child-Workflow> Calling ChildWorkflow...");
+      var childWorkflowInput = "Hello ChildWorkflow!";
+      var childWorkflowOutput =
+          ctx.callSubWorkflow(DemoSubWorkflow.class.getName(), childWorkflowInput, String.class).await();
 
-        ctx.getLogger().info("Child-Workflow> returned: " + childWorkflowOutput);
+      ctx.getLogger().info("Child-Workflow> returned: " + childWorkflowOutput);
 
-        ctx.getLogger().info("Workflow finished");
-        ctx.complete("finished");
-        
-        return;
+      ctx.getLogger().info("Workflow finished");
+      ctx.complete("finished");
+
+      return;
     }
-    
+
     ctx.getLogger().info("Workflow restarted");
   }
 }

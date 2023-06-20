@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
 import javax.annotation.Nullable;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -144,8 +145,7 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
   public Task<Void> createTimer(Duration duration) {
     return this.innerContext.createTimer(duration);
   }
-  
-  
+
 
   /**
    * {@inheritDoc}
@@ -159,13 +159,10 @@ public class DaprWorkflowContextImpl implements WorkflowContext {
    */
   @Override
   public <V> Task<V> callSubWorkflow(String name, @Nullable Object input, @Nullable String instanceID,
-      @Nullable TaskOptions options, Class<V> returnType) {
+                                     @Nullable TaskOptions options, Class<V> returnType) {
 
     return this.innerContext.callSubOrchestrator(name, input, instanceID, options, returnType);
   }
-  
-  
-
 
   /**
    * {@inheritDoc}
